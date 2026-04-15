@@ -1,0 +1,77 @@
+[
+  {
+    "question": "What is the capital of France?",
+    "options": ["Paris", "Berlin", "Madrid", "Rome"],
+    "answer": "Paris"
+  },
+  {
+    "question": "Which planet is known as the Red Planet?",
+    "options": ["Venus", "Mars", "Jupiter", "Mercury"],
+    "answer": "Mars"
+  },
+  {
+    "question": "Who wrote 'Things Fall Apart'?",
+    "options": ["Chinua Achebe", "Ngugi wa Thiong'o", "Wole Soyinka", "Ama Ata Aidoo"],
+    "answer": "Chinua Achebe"
+  },
+  {
+    "question": "How many continents are there?",
+    "options": ["5", "6", "7", "8"],
+    "answer": "7"
+  },
+  {
+    "question": "What gas do plants absorb from the atmosphere?",
+    "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+    "answer": "Carbon Dioxide"
+  },
+  {
+    "question": "Which ocean is the largest?",
+    "options": ["Atlantic", "Indian", "Arctic", "Pacific"],
+    "answer": "Pacific"
+  },
+  {
+    "question": "What is 9 x 8?",
+    "options": ["72", "81", "64", "69"],
+    "answer": "72"
+  },
+  {
+    "question": "Which country hosted the 2010 FIFA World Cup?",
+    "options": ["Brazil", "Germany", "South Africa", "Qatar"],
+    "answer": "South Africa"
+  },
+  {
+    "question": "What is the boiling point of water at sea level?",
+    "options": ["90C", "95C", "100C", "110C"],
+    "answer": "100C"
+  },
+  {
+    "question": "Which language is primarily spoken in Brazil?",
+    "options": ["Spanish", "Portuguese", "French", "English"],
+    "answer": "Portuguese"
+  },
+  {
+    "question": "What is the smallest prime number?",
+    "options": ["0", "1", "2", "3"],
+    "answer": "2"
+  },
+  {
+    "question": "Which instrument has 88 keys?",
+    "options": ["Guitar", "Violin", "Piano", "Trumpet"],
+    "answer": "Piano"
+  },
+  {
+    "question": "Who painted the Mona Lisa?",
+    "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"],
+    "answer": "Leonardo da Vinci"
+  },
+  {
+    "question": "What currency is used in Japan?",
+    "options": ["Won", "Yuan", "Yen", "Baht"],
+    "answer": "Yen"
+  },
+  {
+    "question": "How many players are on a standard football team on the field?",
+    "options": ["9", "10", "11", "12"],
+    "answer": "11"
+  }
+]
