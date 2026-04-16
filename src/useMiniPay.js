@@ -30,11 +30,26 @@ const chainHex = `0x${supportedChain.id.toString(16)}`
 
 function getInjectedProvider() {
   if (typeof window === 'undefined') return null
-  return window.ethereum ?? null
+
+  const injectedProvider = window.ethereum ?? null
+  if (!injectedProvider) return null
+
+  if (Array.isArray(injectedProvider.providers)) {
+    const miniPayProvider = injectedProvider.providers.find((provider) => provider?.isMiniPay)
+    if (miniPayProvider) return miniPayProvider
+
+    const fallbackProvider = injectedProvider.providers.find(
+      (provider) => provider?.request && !provider?.isMetaMask,
+    )
+    if (fallbackProvider) return fallbackProvider
+  }
+
+  return injectedProvider
 }
 
 export function useMiniPay() {
   const [account, setAccount] = useState('')
+  const [detectedAccount, setDetectedAccount] = useState('')
   const [chainId, setChainId] = useState(null)
   const [isConnecting, setIsConnecting] = useState(false)
   const [txStatus, setTxStatus] = useState('idle')
@@ -57,13 +72,29 @@ export function useMiniPay() {
 
   const isOnSupportedChain = chainId === supportedChain.id
 
+  const syncWalletState = useCallback(async () => {
+    if (!provider) return
+
+    const [selectedAddress] = await provider.request({
+      method: 'eth_accounts',
+    })
+    const activeChain = await provider.request({
+      method: 'eth_chainId',
+    })
+
+    setDetectedAccount(selectedAddress || '')
+    setChainId(Number.parseInt(activeChain, 16))
+  }, [provider])
+
   useEffect(() => {
     if (!provider?.request) return undefined
 
     syncWalletState()
 
     function handleAccountsChanged(accounts) {
-      setAccount(accounts[0] || '')
+      const nextAccount = accounts[0] || ''
+      setDetectedAccount(nextAccount)
+      setAccount((currentAccount) => (currentAccount ? nextAccount : ''))
     }
 
     function handleChainChanged(nextChainId) {
@@ -78,20 +109,6 @@ export function useMiniPay() {
       provider.removeListener?.('chainChanged', handleChainChanged)
     }
   }, [provider, syncWalletState])
-
-  const syncWalletState = useCallback(async () => {
-    if (!provider) return
-
-    const [selectedAddress] = await provider.request({
-      method: 'eth_accounts',
-    })
-    const activeChain = await provider.request({
-      method: 'eth_chainId',
-    })
-
-    setAccount(selectedAddress || '')
-    setChainId(Number.parseInt(activeChain, 16))
-  }, [provider])
 
   async function connectWallet() {
     if (!provider) {
@@ -110,6 +127,7 @@ export function useMiniPay() {
         method: 'eth_chainId',
       })
 
+      setDetectedAccount(selectedAddress || '')
       setAccount(selectedAddress)
       setChainId(Number.parseInt(activeChain, 16))
     } catch (error) {
@@ -117,6 +135,12 @@ export function useMiniPay() {
     } finally {
       setIsConnecting(false)
     }
+  }
+
+  function disconnectWallet() {
+    setAccount('')
+    setTxStatus('idle')
+    setTxError('')
   }
 
   async function switchToSupportedChain() {
@@ -204,6 +228,8 @@ export function useMiniPay() {
     account,
     chainId,
     connectWallet,
+    detectedAccount,
+    disconnectWallet,
     isConnecting,
     isMiniPay,
     isOnSupportedChain,

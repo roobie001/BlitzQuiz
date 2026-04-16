@@ -23,6 +23,8 @@ function App() {
     account,
     chainId,
     connectWallet,
+    detectedAccount,
+    disconnectWallet,
     isConnecting,
     isMiniPay,
     isOnSupportedChain,
@@ -56,6 +58,7 @@ function App() {
     () => correctAnswers * 10 + timeLeft,
     [correctAnswers, timeLeft],
   )
+  const baseScore = useMemo(() => correctAnswers * 10, [correctAnswers])
 
   useEffect(() => {
     correctAnswersRef.current = correctAnswers
@@ -184,12 +187,32 @@ function App() {
             Race through a 60-second knowledge battle, lock in your score, and post
             it onchain with a single MiniPay transaction.
           </p>
+          <div className="hero-explainer">
+            <div className="explainer-item">
+              <strong>1. Play fast</strong>
+              <span>Answer as many quiz questions as you can in 60 seconds.</span>
+            </div>
+            <div className="explainer-item">
+              <strong>2. Save time</strong>
+              <span>Your final score is correct answers plus the seconds left on the clock.</span>
+            </div>
+            <div className="explainer-item">
+              <strong>3. Submit once</strong>
+              <span>Only one onchain transaction is used per completed game.</span>
+            </div>
+          </div>
         </div>
 
         <div className="status-strip">
           <div className="status-card">
             <span className="status-label">Wallet</span>
-            <strong>{account ? shortenAddress(account) : 'Not connected'}</strong>
+            <strong>
+              {account
+                ? shortenAddress(account)
+                : detectedAccount
+                  ? 'Wallet detected'
+                  : 'Not connected'}
+            </strong>
           </div>
           <div className="status-card">
             <span className="status-label">Network</span>
@@ -210,6 +233,10 @@ function App() {
             <div>
               <span className="eyebrow">Game Screen</span>
               <h2>60s Knowledge Battle</h2>
+              <p className="section-note">
+                Build points from correct answers, then protect your time bonus before the
+                timer runs out.
+              </p>
             </div>
             <button className="ghost-button" onClick={startGame}>
               {gameState === 'playing' ? 'Restart Run' : 'Start Game'}
@@ -222,14 +249,22 @@ function App() {
               <strong>{timeLeft}s</strong>
             </div>
             <div>
-              <span>Correct</span>
-              <strong>{correctAnswers}</strong>
+              <span>Base Score</span>
+              <strong>{baseScore}</strong>
             </div>
             <div>
-              <span>Live Score</span>
+              <span>Time Bonus</span>
+              <strong>{timeLeft}</strong>
+            </div>
+            <div>
+              <span>Potential Final</span>
               <strong>{liveScore}</strong>
             </div>
           </div>
+          <p className="score-note">
+            The total can go down during the round because the time bonus drops every second.
+            Your correct-answer points never decrease.
+          </p>
 
           {gameState !== 'playing' && (
             <div className="card game-card">
@@ -316,17 +351,36 @@ function App() {
                 ? 'MiniPay environment detected.'
                 : 'Injected wallet fallback enabled for desktop testing.'}
             </p>
-            <button
-              className="primary-button"
-              onClick={connectWallet}
-              disabled={isConnecting}
-            >
-              {account
-                ? `Connected: ${shortenAddress(account)}`
-                : isConnecting
-                  ? 'Connecting...'
-                  : 'Connect Wallet'}
-            </button>
+            {detectedAccount && !account && (
+              <p className="section-note">
+                Wallet found: {shortenAddress(detectedAccount)}. Tap connect to use it in
+                BlitzQuiz.
+              </p>
+            )}
+            <div className="wallet-actions">
+              {!account && (
+                <button
+                  className="primary-button"
+                  onClick={connectWallet}
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+                </button>
+              )}
+              {account && (
+                <>
+                  <button className="primary-button" disabled>
+                    Connected: {shortenAddress(account)}
+                  </button>
+                  <button className="secondary-button" onClick={disconnectWallet}>
+                    Disconnect
+                  </button>
+                </>
+              )}
+            </div>
+            <p className="section-note">
+              Connect to submit your best score onchain after the round ends.
+            </p>
             {account && !isOnSupportedChain && (
               <button className="secondary-button" onClick={switchToSupportedChain}>
                 Switch to {supportedChain.name}

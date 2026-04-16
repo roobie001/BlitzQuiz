@@ -41,6 +41,36 @@
   font-size: 1.05rem;
 }
 
+.hero-explainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.explainer-item {
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.explainer-item strong,
+.explainer-item span,
+.section-note,
+.score-note {
+  display: block;
+}
+
+.explainer-item strong {
+  margin-bottom: 8px;
+}
+
+.explainer-item span,
+.section-note,
+.score-note {
+  color: rgba(245, 247, 255, 0.76);
+}
+
 .eyebrow,
 .card-tag,
 .status-label,
@@ -112,7 +142,7 @@
 }
 
 .score-ribbon {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 24px 0;
 }
 
@@ -185,6 +215,12 @@
   background: transparent;
   color: #d9deff;
   border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.wallet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .primary-button:disabled,
