@@ -7,10 +7,24 @@ import { useMiniPay } from './useMiniPay'
 const GAME_DURATION = 60
 const QUESTIONS_PER_GAME = 12
 
-function shuffleQuestions(pool) {
-  return [...pool]
-    .sort(() => Math.random() - 0.5)
+function shuffleArray(items) {
+  const copy = [...items]
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]]
+  }
+
+  return copy
+}
+
+function buildRoundQuestions(pool) {
+  return shuffleArray(pool)
     .slice(0, Math.min(QUESTIONS_PER_GAME, pool.length))
+    .map((question) => ({
+      ...question,
+      options: shuffleArray(question.options),
+    }))
 }
 
 function shortenAddress(address) {
@@ -36,12 +50,13 @@ function App() {
     txStatus,
   } = useMiniPay()
   const [gameState, setGameState] = useState('idle')
-  const [gameQuestions, setGameQuestions] = useState(() => shuffleQuestions(questions))
+  const [gameQuestions, setGameQuestions] = useState(() => buildRoundQuestions(questions))
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [correctAnswers, setCorrectAnswers] = useState(0)
   const [answeredQuestions, setAnsweredQuestions] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
   const [finalScore, setFinalScore] = useState(0)
+  const [hasSubmittedRound, setHasSubmittedRound] = useState(false)
   const [leaderboard, setLeaderboard] = useState([])
   const [playerStats, setPlayerStats] = useState({ bestScore: 0, totalGames: 0 })
   const [loadingBoard, setLoadingBoard] = useState(false)
@@ -52,7 +67,11 @@ function App() {
 
   const currentQuestion = gameQuestions[currentQuestionIndex]
   const canSubmitScore =
-    Boolean(account) && Boolean(CONTRACT_ADDRESS) && isOnSupportedChain && finalScore > 0
+    Boolean(account) &&
+    Boolean(CONTRACT_ADDRESS) &&
+    isOnSupportedChain &&
+    finalScore > 0 &&
+    !hasSubmittedRound
 
   const liveScore = useMemo(
     () => correctAnswers * 10 + timeLeft,
@@ -139,12 +158,13 @@ function App() {
   }, [account, publicClient, refreshTick])
 
   function startGame() {
-    setGameQuestions(shuffleQuestions(questions))
+    setGameQuestions(buildRoundQuestions(questions))
     setCurrentQuestionIndex(0)
     setCorrectAnswers(0)
     setAnsweredQuestions(0)
     setTimeLeft(GAME_DURATION)
     setFinalScore(0)
+    setHasSubmittedRound(false)
     setGameState('playing')
   }
 
@@ -171,6 +191,7 @@ function App() {
   async function handleSubmitScore() {
     try {
       await submitScore(finalScore)
+      setHasSubmittedRound(true)
       setRefreshTick((value) => value + 1)
     } catch {
       // Error state is surfaced by the hook so the UI stays simple here.
@@ -288,7 +309,14 @@ function App() {
                     onClick={handleSubmitScore}
                     disabled={!canSubmitScore || txStatus === 'pending'}
                   >
-                    {txStatus === 'pending' ? 'Submitting...' : 'Submit Score'}
+                    {txStatus === 'pending'
+                      ? 'Submitting...'
+                      : hasSubmittedRound
+                        ? 'Score Submitted'
+                        : 'Submit Score'}
+                  </button>
+                  <button className="ghost-button" onClick={startGame}>
+                    Play Again
                   </button>
                   {!account && (
                     <button
@@ -311,6 +339,11 @@ function App() {
                     <p className="hint">
                       Add <code>VITE_CONTRACT_ADDRESS</code> after deployment to enable
                       score submission.
+                    </p>
+                  )}
+                  {hasSubmittedRound && (
+                    <p className="success-text">
+                      This round is locked in. Start a new game to post another score.
                     </p>
                   )}
                 </div>
