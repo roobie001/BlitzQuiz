@@ -2,76 +2,361 @@
   {
     "question": "What is the capital of France?",
     "options": ["Paris", "Berlin", "Madrid", "Rome"],
-    "answer": "Paris"
+    "answer": "Paris",
+    "difficulty": "easy"
   },
   {
     "question": "Which planet is known as the Red Planet?",
-    "options": ["Venus", "Mars", "Jupiter", "Mercury"],
-    "answer": "Mars"
-  },
-  {
-    "question": "Who wrote 'Things Fall Apart'?",
-    "options": ["Chinua Achebe", "Ngugi wa Thiong'o", "Wole Soyinka", "Ama Ata Aidoo"],
-    "answer": "Chinua Achebe"
+    "options": ["Mars", "Venus", "Mercury", "Jupiter"],
+    "answer": "Mars",
+    "difficulty": "easy"
   },
   {
     "question": "How many continents are there?",
-    "options": ["5", "6", "7", "8"],
-    "answer": "7"
+    "options": ["7", "5", "6", "8"],
+    "answer": "7",
+    "difficulty": "easy"
   },
   {
-    "question": "What gas do plants absorb from the atmosphere?",
-    "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
-    "answer": "Carbon Dioxide"
+    "question": "What gas do plants absorb from the air?",
+    "options": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+    "answer": "Carbon dioxide",
+    "difficulty": "easy"
   },
   {
     "question": "Which ocean is the largest?",
-    "options": ["Atlantic", "Indian", "Arctic", "Pacific"],
-    "answer": "Pacific"
+    "options": ["Pacific", "Atlantic", "Indian", "Arctic"],
+    "answer": "Pacific",
+    "difficulty": "easy"
   },
   {
     "question": "What is 9 x 8?",
     "options": ["72", "81", "64", "69"],
-    "answer": "72"
-  },
-  {
-    "question": "Which country hosted the 2010 FIFA World Cup?",
-    "options": ["Brazil", "Germany", "South Africa", "Qatar"],
-    "answer": "South Africa"
+    "answer": "72",
+    "difficulty": "easy"
   },
   {
     "question": "What is the boiling point of water at sea level?",
-    "options": ["90C", "95C", "100C", "110C"],
-    "answer": "100C"
+    "options": ["100C", "90C", "95C", "110C"],
+    "answer": "100C",
+    "difficulty": "easy"
   },
   {
-    "question": "Which language is primarily spoken in Brazil?",
-    "options": ["Spanish", "Portuguese", "French", "English"],
-    "answer": "Portuguese"
+    "question": "Which language is mainly spoken in Brazil?",
+    "options": ["Portuguese", "Spanish", "French", "English"],
+    "answer": "Portuguese",
+    "difficulty": "easy"
   },
   {
     "question": "What is the smallest prime number?",
-    "options": ["0", "1", "2", "3"],
-    "answer": "2"
+    "options": ["2", "0", "1", "3"],
+    "answer": "2",
+    "difficulty": "easy"
   },
   {
     "question": "Which instrument has 88 keys?",
-    "options": ["Guitar", "Violin", "Piano", "Trumpet"],
-    "answer": "Piano"
-  },
-  {
-    "question": "Who painted the Mona Lisa?",
-    "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"],
-    "answer": "Leonardo da Vinci"
+    "options": ["Piano", "Guitar", "Violin", "Trumpet"],
+    "answer": "Piano",
+    "difficulty": "easy"
   },
   {
     "question": "What currency is used in Japan?",
-    "options": ["Won", "Yuan", "Yen", "Baht"],
-    "answer": "Yen"
+    "options": ["Yen", "Won", "Yuan", "Baht"],
+    "answer": "Yen",
+    "difficulty": "easy"
   },
   {
-    "question": "How many players are on a standard football team on the field?",
-    "options": ["9", "10", "11", "12"],
-    "answer": "11"
+    "question": "How many players are on a football team on the field?",
+    "options": ["11", "9", "10", "12"],
+    "answer": "11",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Which animal is known as the king of the jungle?",
+    "options": ["Lion", "Tiger", "Elephant", "Leopard"],
+    "answer": "Lion",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What color do you get by mixing blue and yellow?",
+    "options": ["Green", "Purple", "Orange", "Brown"],
+    "answer": "Green",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Which star is at the center of our solar system?",
+    "options": ["The Sun", "Sirius", "Polaris", "Betelgeuse"],
+    "answer": "The Sun",
+    "difficulty": "easy"
+  },
+  {
+    "question": "How many days are in a leap year?",
+    "options": ["366", "365", "364", "367"],
+    "answer": "366",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Which shape has three sides?",
+    "options": ["Triangle", "Square", "Circle", "Rectangle"],
+    "answer": "Triangle",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What do bees make?",
+    "options": ["Honey", "Milk", "Wax paper", "Silk"],
+    "answer": "Honey",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Which continent is Egypt in?",
+    "options": ["Africa", "Asia", "Europe", "South America"],
+    "answer": "Africa",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is the opposite of north on a compass?",
+    "options": ["South", "East", "West", "Up"],
+    "answer": "South",
+    "difficulty": "easy"
+  },
+  {
+    "question": "How many minutes are in one hour?",
+    "options": ["60", "30", "90", "100"],
+    "answer": "60",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is frozen water called?",
+    "options": ["Ice", "Steam", "Snow", "Rain"],
+    "answer": "Ice",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Which body part is used for hearing?",
+    "options": ["Ear", "Eye", "Hand", "Nose"],
+    "answer": "Ear",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Which month comes after June?",
+    "options": ["July", "May", "August", "September"],
+    "answer": "July",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is the primary color of grass?",
+    "options": ["Green", "Blue", "Red", "Black"],
+    "answer": "Green",
+    "difficulty": "easy"
+  },
+  {
+    "question": "Who wrote 'Things Fall Apart'?",
+    "options": ["Chinua Achebe", "Wole Soyinka", "Ngugi wa Thiong'o", "Nadine Gordimer"],
+    "answer": "Chinua Achebe",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which country hosted the 2010 FIFA World Cup?",
+    "options": ["South Africa", "Brazil", "Germany", "Qatar"],
+    "answer": "South Africa",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Who painted the Mona Lisa?",
+    "options": ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Claude Monet"],
+    "answer": "Leonardo da Vinci",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the largest mammal on Earth?",
+    "options": ["Blue whale", "Elephant", "Giraffe", "Hippopotamus"],
+    "answer": "Blue whale",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which organ pumps blood through the body?",
+    "options": ["Heart", "Liver", "Lung", "Kidney"],
+    "answer": "Heart",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which scientist developed the theory of gravity after observing a falling apple?",
+    "options": ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"],
+    "answer": "Isaac Newton",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the chemical symbol for gold?",
+    "options": ["Au", "Ag", "Gd", "Go"],
+    "answer": "Au",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which country is home to the Great Pyramid of Giza?",
+    "options": ["Egypt", "Mexico", "Greece", "Jordan"],
+    "answer": "Egypt",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which blood type is known as the universal donor?",
+    "options": ["O negative", "AB positive", "A positive", "B negative"],
+    "answer": "O negative",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which desert is the largest hot desert in the world?",
+    "options": ["Sahara", "Gobi", "Kalahari", "Arabian"],
+    "answer": "Sahara",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How many bones are in the adult human body?",
+    "options": ["206", "201", "212", "196"],
+    "answer": "206",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which country has the most people in the world?",
+    "options": ["India", "China", "United States", "Indonesia"],
+    "answer": "India",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the square root of 144?",
+    "options": ["12", "14", "10", "16"],
+    "answer": "12",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which element do humans breathe in to survive?",
+    "options": ["Oxygen", "Carbon", "Helium", "Nitrogen"],
+    "answer": "Oxygen",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Who was the first person to walk on the Moon?",
+    "options": ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "Michael Collins"],
+    "answer": "Neil Armstrong",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the longest river in Africa?",
+    "options": ["Nile", "Congo", "Niger", "Zambezi"],
+    "answer": "Nile",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which country is famous for the city of Venice?",
+    "options": ["Italy", "Spain", "Austria", "Croatia"],
+    "answer": "Italy",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What do you call animals that eat both plants and meat?",
+    "options": ["Omnivores", "Herbivores", "Carnivores", "Predators"],
+    "answer": "Omnivores",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which layer of Earth is liquid and surrounds the inner core?",
+    "options": ["Outer core", "Crust", "Mantle", "Lithosphere"],
+    "answer": "Outer core",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which planet has the most visible rings?",
+    "options": ["Saturn", "Jupiter", "Uranus", "Neptune"],
+    "answer": "Saturn",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How many edges does a cube have?",
+    "options": ["12", "8", "10", "14"],
+    "answer": "12",
+    "difficulty": "medium"
+  },
+  {
+    "question": "In which sport is the term 'birdie' used?",
+    "options": ["Golf", "Tennis", "Badminton", "Baseball"],
+    "answer": "Golf",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which city is the capital of Canada?",
+    "options": ["Ottawa", "Toronto", "Vancouver", "Montreal"],
+    "answer": "Ottawa",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the main language spoken in Mexico?",
+    "options": ["Spanish", "Portuguese", "English", "Italian"],
+    "answer": "Spanish",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the term for water changing from liquid to gas?",
+    "options": ["Evaporation", "Condensation", "Freezing", "Melting"],
+    "answer": "Evaporation",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Which empire built Machu Picchu?",
+    "options": ["Inca", "Roman", "Ottoman", "Mayan"],
+    "answer": "Inca",
+    "difficulty": "hard"
+  },
+  {
+    "question": "What is the smallest country in the world by area?",
+    "options": ["Vatican City", "Monaco", "San Marino", "Liechtenstein"],
+    "answer": "Vatican City",
+    "difficulty": "hard"
+  },
+  {
+    "question": "Which scientist proposed the uncertainty principle?",
+    "options": ["Werner Heisenberg", "Niels Bohr", "Max Planck", "Erwin Schrodinger"],
+    "answer": "Werner Heisenberg",
+    "difficulty": "hard"
+  },
+  {
+    "question": "What is the capital city of Kazakhstan?",
+    "options": ["Astana", "Almaty", "Tashkent", "Bishkek"],
+    "answer": "Astana",
+    "difficulty": "hard"
+  },
+  {
+    "question": "Which metal has the highest melting point?",
+    "options": ["Tungsten", "Iron", "Titanium", "Platinum"],
+    "answer": "Tungsten",
+    "difficulty": "hard"
+  },
+  {
+    "question": "In computing, what does CPU stand for?",
+    "options": ["Central Processing Unit", "Computer Primary Unit", "Central Program Utility", "Control Processing User"],
+    "answer": "Central Processing Unit",
+    "difficulty": "hard"
+  },
+  {
+    "question": "Which language family does Hungarian belong to?",
+    "options": ["Uralic", "Slavic", "Romance", "Germanic"],
+    "answer": "Uralic",
+    "difficulty": "hard"
+  },
+  {
+    "question": "What is the value of pi rounded to four decimal places?",
+    "options": ["3.1416", "3.1412", "3.1426", "3.1406"],
+    "answer": "3.1416",
+    "difficulty": "hard"
+  },
+  {
+    "question": "Which sea separates Europe from Africa?",
+    "options": ["Mediterranean Sea", "Black Sea", "Red Sea", "Arabian Sea"],
+    "answer": "Mediterranean Sea",
+    "difficulty": "hard"
+  },
+  {
+    "question": "What is the hardest natural substance on Earth?",
+    "options": ["Diamond", "Quartz", "Graphite", "Ruby"],
+    "answer": "Diamond",
+    "difficulty": "hard"
   }
 ]

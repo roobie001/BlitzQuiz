@@ -5,7 +5,17 @@ import { CONTRACT_ADDRESS, getLeaderboardEntries, getPlayerStats } from './lib/c
 import { useMiniPay } from './useMiniPay'
 
 const GAME_DURATION = 60
-const QUESTIONS_PER_GAME = 12
+const QUESTIONS_PER_GAME = 10
+const ROUND_DISTRIBUTION = {
+  easy: 4,
+  medium: 4,
+  hard: 2,
+}
+const POINTS_MAP = {
+  easy: 10,
+  medium: 15,
+  hard: 20,
+}
 
 function shuffleArray(items) {
   const copy = [...items]
@@ -18,13 +28,38 @@ function shuffleArray(items) {
   return copy
 }
 
+function pickRandom(items, count) {
+  return shuffleArray(items).slice(0, Math.min(count, items.length))
+}
+
 function buildRoundQuestions(pool) {
-  return shuffleArray(pool)
-    .slice(0, Math.min(QUESTIONS_PER_GAME, pool.length))
-    .map((question) => ({
-      ...question,
-      options: shuffleArray(question.options),
-    }))
+  const validQuestions = pool.filter((question) =>
+    ['easy', 'medium', 'hard'].includes(question.difficulty),
+  )
+  const easy = validQuestions.filter((question) => question.difficulty === 'easy')
+  const medium = validQuestions.filter((question) => question.difficulty === 'medium')
+  const hard = validQuestions.filter((question) => question.difficulty === 'hard')
+
+  let roundQuestions = []
+
+  if (
+    easy.length >= ROUND_DISTRIBUTION.easy &&
+    medium.length >= ROUND_DISTRIBUTION.medium &&
+    hard.length >= ROUND_DISTRIBUTION.hard
+  ) {
+    roundQuestions = [
+      ...pickRandom(easy, ROUND_DISTRIBUTION.easy),
+      ...pickRandom(medium, ROUND_DISTRIBUTION.medium),
+      ...pickRandom(hard, ROUND_DISTRIBUTION.hard),
+    ]
+  } else {
+    roundQuestions = pickRandom(validQuestions.length > 0 ? validQuestions : pool, QUESTIONS_PER_GAME)
+  }
+
+  return shuffleArray(roundQuestions).map((question) => ({
+    ...question,
+    options: shuffleArray(question.options),
+  }))
 }
 
 function shortenAddress(address) {
@@ -53,6 +88,7 @@ function App() {
   const [gameQuestions, setGameQuestions] = useState(() => buildRoundQuestions(questions))
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [correctAnswers, setCorrectAnswers] = useState(0)
+  const [totalPoints, setTotalPoints] = useState(0)
   const [answeredQuestions, setAnsweredQuestions] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
   const [finalScore, setFinalScore] = useState(0)
@@ -63,6 +99,7 @@ function App() {
   const [boardError, setBoardError] = useState('')
   const [refreshTick, setRefreshTick] = useState(0)
   const correctAnswersRef = useRef(correctAnswers)
+  const totalPointsRef = useRef(totalPoints)
   const timeLeftRef = useRef(timeLeft)
 
   const currentQuestion = gameQuestions[currentQuestionIndex]
@@ -74,23 +111,24 @@ function App() {
     !hasSubmittedRound
 
   const liveScore = useMemo(
-    () => correctAnswers * 10 + timeLeft,
-    [correctAnswers, timeLeft],
+    () => totalPoints + timeLeft,
+    [timeLeft, totalPoints],
   )
-  const baseScore = useMemo(() => correctAnswers * 10, [correctAnswers])
+  const baseScore = useMemo(() => totalPoints, [totalPoints])
 
   useEffect(() => {
     correctAnswersRef.current = correctAnswers
+    totalPointsRef.current = totalPoints
     timeLeftRef.current = timeLeft
-  }, [correctAnswers, timeLeft])
+  }, [correctAnswers, timeLeft, totalPoints])
 
   function endGame(
     remainingTime = timeLeftRef.current,
-    finalCorrect = correctAnswersRef.current,
+    finalPoints = totalPointsRef.current,
   ) {
     setGameState((currentState) => {
       if (currentState !== 'playing') return currentState
-      setFinalScore(finalCorrect * 10 + remainingTime)
+      setFinalScore(finalPoints + remainingTime)
       return 'finished'
     })
   }
@@ -161,6 +199,7 @@ function App() {
     setGameQuestions(buildRoundQuestions(questions))
     setCurrentQuestionIndex(0)
     setCorrectAnswers(0)
+    setTotalPoints(0)
     setAnsweredQuestions(0)
     setTimeLeft(GAME_DURATION)
     setFinalScore(0)
@@ -172,16 +211,18 @@ function App() {
     if (gameState !== 'playing' || !currentQuestion) return
 
     const isCorrect = selectedAnswer === currentQuestion.answer
-    const nextCorrectAnswers = correctAnswers + (isCorrect ? 1 : 0)
+    const questionPoints = POINTS_MAP[currentQuestion.difficulty] ?? 10
+    const nextPoints = totalPoints + (isCorrect ? questionPoints : 0)
     const nextQuestionIndex = currentQuestionIndex + 1
 
     setAnsweredQuestions((count) => count + 1)
     if (isCorrect) {
       setCorrectAnswers((count) => count + 1)
+      setTotalPoints((points) => points + questionPoints)
     }
 
     if (nextQuestionIndex >= gameQuestions.length) {
-      endGame(timeLeft, nextCorrectAnswers)
+      endGame(timeLeft, nextPoints)
       return
     }
 
@@ -292,11 +333,11 @@ function App() {
               <p className="card-tag">How scoring works</p>
               <h3>{gameState === 'finished' ? 'Round complete' : 'Tap in and play instantly'}</h3>
               <p>
-                Score formula: <code>(correctAnswers * 10) + remainingTime</code>
+                Score formula: <code>totalPoints + remainingTime</code>
               </p>
               <p>
-                Answer fast. Every second left on the clock adds directly to your final
-                result.
+                Easy answers give 10 points, medium answers give 15, and hard answers
+                give 20. Every second left adds a time bonus.
               </p>
               {gameState === 'finished' && (
                 <div className="end-state">
