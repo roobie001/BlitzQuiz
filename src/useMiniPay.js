@@ -21,7 +21,7 @@ const supportedChain =
             public: { http: [configuredRpcUrl] },
           },
         };
-const chainHexo = `0x${supportedChain.id.toString(16)}`;
+const chainHex = `0x${supportedChain.id.toString(16)}`;
 
 function getInjectedProvider() {
   if (typeof window === "undefined") return null;
