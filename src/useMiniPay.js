@@ -1,16 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  createPublicClient,
-  createWalletClient,
-  custom,
-  http,
-} from 'viem'
-import { celo, celoAlfajores } from 'viem/chains'
-import { CONTRACT_ADDRESS, blitzQuizAbi } from './lib/contract'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPublicClient, createWalletClient, custom, http } from "viem";
+import { celo, celoAlfajores } from "viem/chains";
+import { CONTRACT_ADDRESS, blitzQuizAbi } from "./lib/contract";
 
-const configuredChainId = Number(import.meta.env.VITE_CHAIN_ID || 11142220)
+const configuredChainId = Number(import.meta.env.VITE_CHAIN_ID || 11142220);
 const configuredRpcUrl =
-  import.meta.env.VITE_RPC_URL || 'https://alfajores-forno.celo-testnet.org'
+  import.meta.env.VITE_RPC_URL || "https://alfajores-forno.celo-testnet.org";
 
 const supportedChain =
   configuredChainId === celo.id
@@ -20,46 +15,48 @@ const supportedChain =
       : {
           ...celoAlfajores,
           id: configuredChainId,
-          name: 'Custom Celo Testnet',
+          name: "Custom Celo Testnet",
           rpcUrls: {
             default: { http: [configuredRpcUrl] },
             public: { http: [configuredRpcUrl] },
           },
-        }
-const chainHex = `0x${supportedChain.id.toString(16)}`
+        };
+const chainHexo = `0x${supportedChain.id.toString(16)}`;
 
 function getInjectedProvider() {
-  if (typeof window === 'undefined') return null
+  if (typeof window === "undefined") return null;
 
-  const injectedProvider = window.ethereum ?? null
-  if (!injectedProvider) return null
+  const injectedProvider = window.ethereum ?? null;
+  if (!injectedProvider) return null;
 
   if (Array.isArray(injectedProvider.providers)) {
-    const miniPayProvider = injectedProvider.providers.find((provider) => provider?.isMiniPay)
-    if (miniPayProvider) return miniPayProvider
+    const miniPayProvider = injectedProvider.providers.find(
+      (provider) => provider?.isMiniPay,
+    );
+    if (miniPayProvider) return miniPayProvider;
 
     const fallbackProvider = injectedProvider.providers.find(
       (provider) => provider?.request && !provider?.isMetaMask,
-    )
-    if (fallbackProvider) return fallbackProvider
+    );
+    if (fallbackProvider) return fallbackProvider;
   }
 
-  return injectedProvider
+  return injectedProvider;
 }
 
 export function useMiniPay() {
-  const [account, setAccount] = useState('')
-  const [detectedAccount, setDetectedAccount] = useState('')
-  const [chainId, setChainId] = useState(null)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [txStatus, setTxStatus] = useState('idle')
-  const [txError, setTxError] = useState('')
+  const [account, setAccount] = useState("");
+  const [detectedAccount, setDetectedAccount] = useState("");
+  const [chainId, setChainId] = useState(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [txStatus, setTxStatus] = useState("idle");
+  const [txError, setTxError] = useState("");
 
-  const provider = getInjectedProvider()
+  const provider = getInjectedProvider();
   const isMiniPay =
     Boolean(provider?.isMiniPay) ||
-    (typeof navigator !== 'undefined' &&
-      navigator.userAgent.toLowerCase().includes('minipay'))
+    (typeof navigator !== "undefined" &&
+      navigator.userAgent.toLowerCase().includes("minipay"));
 
   const publicClient = useMemo(
     () =>
@@ -68,99 +65,101 @@ export function useMiniPay() {
         transport: http(configuredRpcUrl),
       }),
     [],
-  )
+  );
 
-  const isOnSupportedChain = chainId === supportedChain.id
+  const isOnSupportedChain = chainId === supportedChain.id;
 
   const syncWalletState = useCallback(async () => {
-    if (!provider) return
+    if (!provider) return;
 
     const [selectedAddress] = await provider.request({
-      method: 'eth_accounts',
-    })
+      method: "eth_accounts",
+    });
     const activeChain = await provider.request({
-      method: 'eth_chainId',
-    })
+      method: "eth_chainId",
+    });
 
-    setDetectedAccount(selectedAddress || '')
-    setChainId(Number.parseInt(activeChain, 16))
-  }, [provider])
+    setDetectedAccount(selectedAddress || "");
+    setChainId(Number.parseInt(activeChain, 16));
+  }, [provider]);
 
   useEffect(() => {
-    if (!provider?.request) return undefined
+    if (!provider?.request) return undefined;
 
-    syncWalletState()
+    syncWalletState();
 
     function handleAccountsChanged(accounts) {
-      const nextAccount = accounts[0] || ''
-      setDetectedAccount(nextAccount)
-      setAccount((currentAccount) => (currentAccount ? nextAccount : ''))
+      const nextAccount = accounts[0] || "";
+      setDetectedAccount(nextAccount);
+      setAccount((currentAccount) => (currentAccount ? nextAccount : ""));
     }
 
     function handleChainChanged(nextChainId) {
-      setChainId(Number.parseInt(nextChainId, 16))
+      setChainId(Number.parseInt(nextChainId, 16));
     }
 
-    provider.on?.('accountsChanged', handleAccountsChanged)
-    provider.on?.('chainChanged', handleChainChanged)
+    provider.on?.("accountsChanged", handleAccountsChanged);
+    provider.on?.("chainChanged", handleChainChanged);
 
     return () => {
-      provider.removeListener?.('accountsChanged', handleAccountsChanged)
-      provider.removeListener?.('chainChanged', handleChainChanged)
-    }
-  }, [provider, syncWalletState])
+      provider.removeListener?.("accountsChanged", handleAccountsChanged);
+      provider.removeListener?.("chainChanged", handleChainChanged);
+    };
+  }, [provider, syncWalletState]);
 
   async function connectWallet() {
     if (!provider) {
-      setTxError('MiniPay or another injected wallet was not found in this browser.')
-      return
+      setTxError(
+        "MiniPay or another injected wallet was not found in this browser.",
+      );
+      return;
     }
 
-    setIsConnecting(true)
-    setTxError('')
+    setIsConnecting(true);
+    setTxError("");
 
     try {
       const [selectedAddress] = await provider.request({
-        method: 'eth_requestAccounts',
-      })
+        method: "eth_requestAccounts",
+      });
       const activeChain = await provider.request({
-        method: 'eth_chainId',
-      })
+        method: "eth_chainId",
+      });
 
-      setDetectedAccount(selectedAddress || '')
-      setAccount(selectedAddress)
-      setChainId(Number.parseInt(activeChain, 16))
+      setDetectedAccount(selectedAddress || "");
+      setAccount(selectedAddress);
+      setChainId(Number.parseInt(activeChain, 16));
     } catch (error) {
-      setTxError(error.message || 'Unable to connect wallet.')
+      setTxError(error.message || "Unable to connect wallet.");
     } finally {
-      setIsConnecting(false)
+      setIsConnecting(false);
     }
   }
 
   function disconnectWallet() {
-    setAccount('')
-    setTxStatus('idle')
-    setTxError('')
+    setAccount("");
+    setTxStatus("idle");
+    setTxError("");
   }
 
   async function switchToSupportedChain() {
     if (!provider) {
-      setTxError('No injected wallet found.')
-      return
+      setTxError("No injected wallet found.");
+      return;
     }
 
-    setTxError('')
+    setTxError("");
 
     try {
       await provider.request({
-        method: 'wallet_switchEthereumChain',
+        method: "wallet_switchEthereumChain",
         params: [{ chainId: chainHex }],
-      })
-      await syncWalletState()
+      });
+      await syncWalletState();
     } catch (switchError) {
       if (switchError.code === 4902) {
         await provider.request({
-          method: 'wallet_addEthereumChain',
+          method: "wallet_addEthereumChain",
           params: [
             {
               chainId: chainHex,
@@ -172,55 +171,55 @@ export function useMiniPay() {
                 : [],
             },
           ],
-        })
-        await syncWalletState()
-        return
+        });
+        await syncWalletState();
+        return;
       }
 
-      setTxError(switchError.message || 'Unable to switch chain.')
+      setTxError(switchError.message || "Unable to switch chain.");
     }
   }
 
   async function submitScore(score) {
     if (!provider) {
-      throw new Error('Wallet not available.')
+      throw new Error("Wallet not available.");
     }
     if (!account) {
-      throw new Error('Connect wallet before submitting.')
+      throw new Error("Connect wallet before submitting.");
     }
     if (!CONTRACT_ADDRESS) {
-      throw new Error('Contract address is not configured.')
+      throw new Error("Contract address is not configured.");
     }
 
-    setTxStatus('pending')
-    setTxError('')
+    setTxStatus("pending");
+    setTxError("");
 
     try {
       if (!isOnSupportedChain) {
-        await switchToSupportedChain()
+        await switchToSupportedChain();
       }
 
       const walletClient = createWalletClient({
         account,
         chain: supportedChain,
         transport: custom(provider),
-      })
+      });
 
       const hash = await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: blitzQuizAbi,
-        functionName: 'submitScore',
+        functionName: "submitScore",
         args: [BigInt(score)],
-      })
+      });
 
-      await publicClient.waitForTransactionReceipt({ hash })
-      setTxStatus('success')
-      await syncWalletState()
-      return hash
+      await publicClient.waitForTransactionReceipt({ hash });
+      setTxStatus("success");
+      await syncWalletState();
+      return hash;
     } catch (error) {
-      setTxStatus('error')
-      setTxError(error.shortMessage || error.message || 'Transaction failed.')
-      throw error
+      setTxStatus("error");
+      setTxError(error.shortMessage || error.message || "Transaction failed.");
+      throw error;
     }
   }
 
@@ -239,5 +238,5 @@ export function useMiniPay() {
     switchToSupportedChain,
     txError,
     txStatus,
-  }
+  };
 }
