@@ -3,6 +3,8 @@ import './App.css'
 import questions from './data/questions.json'
 import { CONTRACT_ADDRESS, getLeaderboardEntries, getPlayerStats } from './lib/contract'
 import { useMiniPay } from './useMiniPay'
+import { TopicSelector } from './components/TopicSelector'
+import { useQuestionGenerator } from './hooks/useQuestionGenerator'
 
 const GAME_DURATION = 60
 const QUESTIONS_PER_GAME = 10
@@ -84,6 +86,9 @@ function App() {
     txError,
     txStatus,
   } = useMiniPay()
+  const [selectedTopic, setSelectedTopic] = useState(null)
+  const { questions: aiQuestions, isLoading: isGeneratingQuestions } =
+    useQuestionGenerator(selectedTopic)
   const [gameState, setGameState] = useState('idle')
   const [gameQuestions, setGameQuestions] = useState(() => buildRoundQuestions(questions))
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -196,7 +201,7 @@ function App() {
   }, [account, publicClient, refreshTick])
 
   function startGame() {
-    setGameQuestions(buildRoundQuestions(questions))
+    setGameQuestions(buildRoundQuestions(aiQuestions.length > 0 ? aiQuestions : questions))
     setCurrentQuestionIndex(0)
     setCorrectAnswers(0)
     setTotalPoints(0)
@@ -300,6 +305,14 @@ function App() {
                 timer runs out.
               </p>
             </div>
+          </div>
+          <TopicSelector
+            onTopicSelect={setSelectedTopic}
+            selectedTopic={selectedTopic}
+            isLoading={isGeneratingQuestions}
+          />
+          <div className="panel-header">
+            <div />
             <button className="ghost-button" onClick={startGame}>
               {gameState === 'playing' ? 'Restart Run' : 'Start Game'}
             </button>
