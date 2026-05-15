@@ -1,48 +1,58 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import './App.css'
-import questions from './data/questions.json'
-import { CONTRACT_ADDRESS, getLeaderboardEntries, getPlayerStats } from './lib/contract'
-import { useMiniPay } from './useMiniPay'
-import { TopicSelector } from './components/TopicSelector'
-import { useQuestionGenerator } from './hooks/useQuestionGenerator'
+import { useEffect, useMemo, useRef, useState } from "react";
+import "./App.css";
+import questions from "./data/questions.json";
+import {
+  CONTRACT_ADDRESS,
+  getLeaderboardEntries,
+  getPlayerStats,
+} from "./lib/contract";
+import { useMiniPay } from "./useMiniPay";
+import { TopicSelector } from "./components/TopicSelector";
+import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 
-const GAME_DURATION = 60
-const QUESTIONS_PER_GAME = 10
+const GAME_DURATION = 60;
+const QUESTIONS_PER_GAME = 10;
 const ROUND_DISTRIBUTION = {
   easy: 4,
   medium: 4,
   hard: 2,
-}
+};
 const POINTS_MAP = {
   easy: 10,
   medium: 15,
   hard: 20,
-}
+};
 
 function shuffleArray(items) {
-  const copy = [...items]
+  const copy = [...items];
 
   for (let index = copy.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1))
-    ;[copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]]
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
   }
 
-  return copy
+  return copy;
 }
 
 function pickRandom(items, count) {
-  return shuffleArray(items).slice(0, Math.min(count, items.length))
+  return shuffleArray(items).slice(0, Math.min(count, items.length));
 }
 
 function buildRoundQuestions(pool) {
   const validQuestions = pool.filter((question) =>
-    ['easy', 'medium', 'hard'].includes(question.difficulty),
-  )
-  const easy = validQuestions.filter((question) => question.difficulty === 'easy')
-  const medium = validQuestions.filter((question) => question.difficulty === 'medium')
-  const hard = validQuestions.filter((question) => question.difficulty === 'hard')
+    ["easy", "medium", "hard"].includes(question.difficulty),
+  );
+  const easy = validQuestions.filter(
+    (question) => question.difficulty === "easy",
+  );
+  const medium = validQuestions.filter(
+    (question) => question.difficulty === "medium",
+  );
+  const hard = validQuestions.filter(
+    (question) => question.difficulty === "hard",
+  );
 
-  let roundQuestions = []
+  let roundQuestions = [];
 
   if (
     easy.length >= ROUND_DISTRIBUTION.easy &&
@@ -53,20 +63,23 @@ function buildRoundQuestions(pool) {
       ...pickRandom(easy, ROUND_DISTRIBUTION.easy),
       ...pickRandom(medium, ROUND_DISTRIBUTION.medium),
       ...pickRandom(hard, ROUND_DISTRIBUTION.hard),
-    ]
+    ];
   } else {
-    roundQuestions = pickRandom(validQuestions.length > 0 ? validQuestions : pool, QUESTIONS_PER_GAME)
+    roundQuestions = pickRandom(
+      validQuestions.length > 0 ? validQuestions : pool,
+      QUESTIONS_PER_GAME,
+    );
   }
 
   return shuffleArray(roundQuestions).map((question) => ({
     ...question,
     options: shuffleArray(question.options),
-  }))
+  }));
 }
 
 function shortenAddress(address) {
-  if (!address) return 'Not connected'
-  return `${address.slice(0, 6)}...${address.slice(-4)}`
+  if (!address) return "Not connected";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 function App() {
@@ -85,160 +98,174 @@ function App() {
     supportedChain,
     txError,
     txStatus,
-  } = useMiniPay()
-  const [selectedTopic, setSelectedTopic] = useState(null)
+  } = useMiniPay();
+  const [selectedTopic, setSelectedTopic] = useState(null);
   const { questions: aiQuestions, isLoading: isGeneratingQuestions } =
-    useQuestionGenerator(selectedTopic)
-  const [gameState, setGameState] = useState('idle')
-  const [gameQuestions, setGameQuestions] = useState(() => buildRoundQuestions(questions))
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [correctAnswers, setCorrectAnswers] = useState(0)
-  const [totalPoints, setTotalPoints] = useState(0)
-  const [answeredQuestions, setAnsweredQuestions] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
-  const [finalScore, setFinalScore] = useState(0)
-  const [hasSubmittedRound, setHasSubmittedRound] = useState(false)
-  const [leaderboard, setLeaderboard] = useState([])
-  const [playerStats, setPlayerStats] = useState({ bestScore: 0, totalGames: 0 })
-  const [loadingBoard, setLoadingBoard] = useState(false)
-  const [boardError, setBoardError] = useState('')
-  const [refreshTick, setRefreshTick] = useState(0)
-  const correctAnswersRef = useRef(correctAnswers)
-  const totalPointsRef = useRef(totalPoints)
-  const timeLeftRef = useRef(timeLeft)
+    useQuestionGenerator(selectedTopic);
+  const [gameState, setGameState] = useState("idle");
+  const [gameQuestions, setGameQuestions] = useState(() =>
+    buildRoundQuestions(questions),
+  );
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [answeredQuestions, setAnsweredQuestions] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
+  const [finalScore, setFinalScore] = useState(0);
+  const [hasSubmittedRound, setHasSubmittedRound] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [playerStats, setPlayerStats] = useState({
+    bestScore: 0,
+    totalGames: 0,
+  });
+  const [loadingBoard, setLoadingBoard] = useState(false);
+  const [boardError, setBoardError] = useState("");
+  const [refreshTick, setRefreshTick] = useState(0);
+  const correctAnswersRef = useRef(correctAnswers);
+  const totalPointsRef = useRef(totalPoints);
+  const timeLeftRef = useRef(timeLeft);
 
-  const currentQuestion = gameQuestions[currentQuestionIndex]
+  const currentQuestion = gameQuestions[currentQuestionIndex];
   const canSubmitScore =
     Boolean(account) &&
     Boolean(CONTRACT_ADDRESS) &&
     isOnSupportedChain &&
     finalScore > 0 &&
-    !hasSubmittedRound
+    !hasSubmittedRound;
 
   const liveScore = useMemo(
     () => totalPoints + timeLeft,
     [timeLeft, totalPoints],
-  )
-  const baseScore = useMemo(() => totalPoints, [totalPoints])
+  );
+  const baseScore = useMemo(() => totalPoints, [totalPoints]);
 
   useEffect(() => {
-    correctAnswersRef.current = correctAnswers
-    totalPointsRef.current = totalPoints
-    timeLeftRef.current = timeLeft
-  }, [correctAnswers, timeLeft, totalPoints])
+    correctAnswersRef.current = correctAnswers;
+    totalPointsRef.current = totalPoints;
+    timeLeftRef.current = timeLeft;
+  }, [correctAnswers, timeLeft, totalPoints]);
 
   function endGame(
     remainingTime = timeLeftRef.current,
     finalPoints = totalPointsRef.current,
   ) {
     setGameState((currentState) => {
-      if (currentState !== 'playing') return currentState
-      setFinalScore(finalPoints + remainingTime)
-      return 'finished'
-    })
+      if (currentState !== "playing") return currentState;
+      setFinalScore(finalPoints + remainingTime);
+      return "finished";
+    });
   }
 
   useEffect(() => {
-    if (gameState !== 'playing') return undefined
+    if (gameState !== "playing") return undefined;
 
     const timer = window.setInterval(() => {
       setTimeLeft((currentTime) => {
         if (currentTime <= 1) {
-          window.clearInterval(timer)
-          endGame(0)
-          return 0
+          window.clearInterval(timer);
+          endGame(0);
+          return 0;
         }
 
-        return currentTime - 1
-      })
-    }, 1000)
+        return currentTime - 1;
+      });
+    }, 1000);
 
-    return () => window.clearInterval(timer)
-  }, [gameState])
+    return () => window.clearInterval(timer);
+  }, [gameState]);
 
   useEffect(() => {
-    if (gameState === 'playing' && currentQuestionIndex >= gameQuestions.length) {
-      endGame()
+    if (
+      gameState === "playing" &&
+      currentQuestionIndex >= gameQuestions.length
+    ) {
+      endGame();
     }
-  }, [currentQuestionIndex, gameQuestions.length, gameState])
+  }, [currentQuestionIndex, gameQuestions.length, gameState]);
 
   useEffect(() => {
-    if (!publicClient || !CONTRACT_ADDRESS) return undefined
+    if (!publicClient || !CONTRACT_ADDRESS) return undefined;
 
-    let cancelled = false
+    let cancelled = false;
 
     async function loadLeaderboard() {
-      setLoadingBoard(true)
-      setBoardError('')
+      setLoadingBoard(true);
+      setBoardError("");
 
       try {
         const [entries, stats] = await Promise.all([
           getLeaderboardEntries(publicClient),
-          account ? getPlayerStats(publicClient, account) : Promise.resolve(null),
-        ])
+          account
+            ? getPlayerStats(publicClient, account)
+            : Promise.resolve(null),
+        ]);
 
-        if (cancelled) return
+        if (cancelled) return;
 
-        setLeaderboard(entries)
+        setLeaderboard(entries);
         if (stats) {
-          setPlayerStats(stats)
+          setPlayerStats(stats);
         }
       } catch (error) {
-        if (cancelled) return
-        setBoardError(error.shortMessage || error.message || 'Unable to load leaderboard.')
+        if (cancelled) return;
+        setBoardError(
+          error.shortMessage || error.message || "Unable to load leaderboard.",
+        );
       } finally {
         if (!cancelled) {
-          setLoadingBoard(false)
+          setLoadingBoard(false);
         }
       }
     }
 
-    loadLeaderboard()
+    loadLeaderboard();
 
     return () => {
-      cancelled = true
-    }
-  }, [account, publicClient, refreshTick])
+      cancelled = true;
+    };
+  }, [account, publicClient, refreshTick]);
 
   function startGame() {
-    setGameQuestions(buildRoundQuestions(aiQuestions.length > 0 ? aiQuestions : questions))
-    setCurrentQuestionIndex(0)
-    setCorrectAnswers(0)
-    setTotalPoints(0)
-    setAnsweredQuestions(0)
-    setTimeLeft(GAME_DURATION)
-    setFinalScore(0)
-    setHasSubmittedRound(false)
-    setGameState('playing')
+    setGameQuestions(
+      buildRoundQuestions(aiQuestions.length > 0 ? aiQuestions : questions),
+    );
+    setCurrentQuestionIndex(0);
+    setCorrectAnswers(0);
+    setTotalPoints(0);
+    setAnsweredQuestions(0);
+    setTimeLeft(GAME_DURATION);
+    setFinalScore(0);
+    setHasSubmittedRound(false);
+    setGameState("playing");
   }
 
   function handleAnswer(selectedAnswer) {
-    if (gameState !== 'playing' || !currentQuestion) return
+    if (gameState !== "playing" || !currentQuestion) return;
 
-    const isCorrect = selectedAnswer === currentQuestion.answer
-    const questionPoints = POINTS_MAP[currentQuestion.difficulty] ?? 10
-    const nextPoints = totalPoints + (isCorrect ? questionPoints : 0)
-    const nextQuestionIndex = currentQuestionIndex + 1
+    const isCorrect = selectedAnswer === currentQuestion.answer;
+    const questionPoints = POINTS_MAP[currentQuestion.difficulty] ?? 10;
+    const nextPoints = totalPoints + (isCorrect ? questionPoints : 0);
+    const nextQuestionIndex = currentQuestionIndex + 1;
 
-    setAnsweredQuestions((count) => count + 1)
+    setAnsweredQuestions((count) => count + 1);
     if (isCorrect) {
-      setCorrectAnswers((count) => count + 1)
-      setTotalPoints((points) => points + questionPoints)
+      setCorrectAnswers((count) => count + 1);
+      setTotalPoints((points) => points + questionPoints);
     }
 
     if (nextQuestionIndex >= gameQuestions.length) {
-      endGame(timeLeft, nextPoints)
-      return
+      endGame(timeLeft, nextPoints);
+      return;
     }
 
-    setCurrentQuestionIndex(nextQuestionIndex)
+    setCurrentQuestionIndex(nextQuestionIndex);
   }
 
   async function handleSubmitScore() {
     try {
-      await submitScore(finalScore)
-      setHasSubmittedRound(true)
-      setRefreshTick((value) => value + 1)
+      await submitScore(finalScore);
+      setHasSubmittedRound(true);
+      setRefreshTick((value) => value + 1);
     } catch {
       // Error state is surfaced by the hook so the UI stays simple here.
     }
@@ -251,21 +278,28 @@ function App() {
           <span className="eyebrow">Proof of Ship MiniPay Game</span>
           <h1>BlitzQuiz</h1>
           <p className="hero-lead">
-            Race through a 60-second knowledge battle, lock in your score, and post
-            it onchain with a single MiniPay transaction.
+            Race through a 60-second knowledge battle, lock in your score, and
+            post it onchain with a single MiniPay transaction.
           </p>
           <div className="hero-explainer">
             <div className="explainer-item">
               <strong>1. Play fast</strong>
-              <span>Answer as many quiz questions as you can in 60 seconds.</span>
+              <span>
+                Answer as many quiz questions as you can in 60 seconds.
+              </span>
             </div>
             <div className="explainer-item">
               <strong>2. Save time</strong>
-              <span>Your final score is correct answers plus the seconds left on the clock.</span>
+              <span>
+                Your final score is correct answers plus the seconds left on the
+                clock.
+              </span>
             </div>
             <div className="explainer-item">
               <strong>3. Submit once</strong>
-              <span>Only one onchain transaction is used per completed game.</span>
+              <span>
+                Only one onchain transaction is used per completed game.
+              </span>
             </div>
           </div>
         </div>
@@ -277,19 +311,21 @@ function App() {
               {account
                 ? shortenAddress(account)
                 : detectedAccount
-                  ? 'Wallet detected'
-                  : 'Not connected'}
+                  ? "Wallet detected"
+                  : "Not connected"}
             </strong>
           </div>
           <div className="status-card">
             <span className="status-label">Network</span>
             <strong>
-              {chainId ? `${supportedChain.name} (${chainId})` : 'Connect to continue'}
+              {chainId
+                ? `${supportedChain.name} (${chainId})`
+                : "Connect to continue"}
             </strong>
           </div>
           <div className="status-card">
             <span className="status-label">Contract</span>
-            <strong>{CONTRACT_ADDRESS ? 'Configured' : 'Set env var'}</strong>
+            <strong>{CONTRACT_ADDRESS ? "Configured" : "Set env var"}</strong>
           </div>
         </div>
       </section>
@@ -301,8 +337,8 @@ function App() {
               <span className="eyebrow">Game Screen</span>
               <h2>60s Knowledge Battle</h2>
               <p className="section-note">
-                Build points from correct answers, then protect your time bonus before the
-                timer runs out.
+                Build points from correct answers, then protect your time bonus
+                before the timer runs out.
               </p>
             </div>
           </div>
@@ -314,7 +350,7 @@ function App() {
           <div className="panel-header">
             <div />
             <button className="ghost-button" onClick={startGame}>
-              {gameState === 'playing' ? 'Restart Run' : 'Start Game'}
+              {gameState === "playing" ? "Restart Run" : "Start Game"}
             </button>
           </div>
 
@@ -337,22 +373,26 @@ function App() {
             </div>
           </div>
           <p className="score-note">
-            The total can go down during the round because the time bonus drops every second.
-            Your correct-answer points never decrease.
+            The total can go down during the round because the time bonus drops
+            every second. Your correct-answer points never decrease.
           </p>
 
-          {gameState !== 'playing' && (
+          {gameState !== "playing" && (
             <div className="card game-card">
               <p className="card-tag">How scoring works</p>
-              <h3>{gameState === 'finished' ? 'Round complete' : 'Tap in and play instantly'}</h3>
+              <h3>
+                {gameState === "finished"
+                  ? "Round complete"
+                  : "Tap in and play instantly"}
+              </h3>
               <p>
                 Score formula: <code>totalPoints + remainingTime</code>
               </p>
               <p>
-                Easy answers give 10 points, medium answers give 15, and hard answers
-                give 20. Every second left adds a time bonus.
+                Easy answers give 10 points, medium answers give 15, and hard
+                answers give 20. Every second left adds a time bonus.
               </p>
-              {gameState === 'finished' && (
+              {gameState === "finished" && (
                 <div className="end-state">
                   <div className="final-score">
                     <span>Final Score</span>
@@ -361,13 +401,13 @@ function App() {
                   <button
                     className="primary-button"
                     onClick={handleSubmitScore}
-                    disabled={!canSubmitScore || txStatus === 'pending'}
+                    disabled={!canSubmitScore || txStatus === "pending"}
                   >
-                    {txStatus === 'pending'
-                      ? 'Submitting...'
+                    {txStatus === "pending"
+                      ? "Submitting..."
                       : hasSubmittedRound
-                        ? 'Score Submitted'
-                        : 'Submit Score'}
+                        ? "Score Submitted"
+                        : "Submit Score"}
                   </button>
                   <button className="ghost-button" onClick={startGame}>
                     Play Again
@@ -378,7 +418,7 @@ function App() {
                       onClick={connectWallet}
                       disabled={isConnecting}
                     >
-                      {isConnecting ? 'Connecting...' : 'Connect MiniPay'}
+                      {isConnecting ? "Connecting..." : "Connect MiniPay"}
                     </button>
                   )}
                   {account && !isOnSupportedChain && (
@@ -391,13 +431,14 @@ function App() {
                   )}
                   {!CONTRACT_ADDRESS && (
                     <p className="hint">
-                      Add <code>VITE_CONTRACT_ADDRESS</code> after deployment to enable
-                      score submission.
+                      Add <code>VITE_CONTRACT_ADDRESS</code> after deployment to
+                      enable score submission.
                     </p>
                   )}
                   {hasSubmittedRound && (
                     <p className="success-text">
-                      This round is locked in. Start a new game to post another score.
+                      This round is locked in. Start a new game to post another
+                      score.
                     </p>
                   )}
                 </div>
@@ -405,7 +446,7 @@ function App() {
             </div>
           )}
 
-          {gameState === 'playing' && currentQuestion && (
+          {gameState === "playing" && currentQuestion && (
             <div className="card game-card">
               <div className="question-meta">
                 <span>
@@ -435,13 +476,13 @@ function App() {
             <h3>Wallet and chain</h3>
             <p>
               {isMiniPay
-                ? 'MiniPay environment detected.'
-                : 'Injected wallet fallback enabled for desktop testing.'}
+                ? "MiniPay environment detected."
+                : "Injected wallet fallback enabled for desktop testing."}
             </p>
             {detectedAccount && !account && (
               <p className="section-note">
-                Wallet found: {shortenAddress(detectedAccount)}. Tap connect to use it in
-                BlitzQuiz.
+                Wallet found: {shortenAddress(detectedAccount)}. Tap connect to
+                use it in BlitzQuiz.
               </p>
             )}
             <div className="wallet-actions">
@@ -451,7 +492,7 @@ function App() {
                   onClick={connectWallet}
                   disabled={isConnecting}
                 >
-                  {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+                  {isConnecting ? "Connecting..." : "Connect Wallet"}
                 </button>
               )}
               {account && (
@@ -459,7 +500,10 @@ function App() {
                   <button className="primary-button" disabled>
                     Connected: {shortenAddress(account)}
                   </button>
-                  <button className="secondary-button" onClick={disconnectWallet}>
+                  <button
+                    className="secondary-button"
+                    onClick={disconnectWallet}
+                  >
                     Disconnect
                   </button>
                 </>
@@ -469,12 +513,17 @@ function App() {
               Connect to submit your best score onchain after the round ends.
             </p>
             {account && !isOnSupportedChain && (
-              <button className="secondary-button" onClick={switchToSupportedChain}>
+              <button
+                className="secondary-button"
+                onClick={switchToSupportedChain}
+              >
                 Switch to {supportedChain.name}
               </button>
             )}
-            {txStatus === 'success' && (
-              <p className="success-text">Score submitted successfully onchain.</p>
+            {txStatus === "success" && (
+              <p className="success-text">
+                Score submitted successfully onchain.
+              </p>
             )}
             {txError && <p className="error-text">{txError}</p>}
           </div>
@@ -512,8 +561,8 @@ function App() {
             {boardError && <p className="error-text">{boardError}</p>}
             {!loadingBoard && !boardError && leaderboard.length === 0 && (
               <p>
-                No onchain scores yet. Deploy the contract, set the env vars, and claim
-                the first spot.
+                No onchain scores yet. Deploy the contract, set the env vars,
+                and claim the first spot.
               </p>
             )}
 
@@ -535,7 +584,7 @@ function App() {
         </aside>
       </section>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
