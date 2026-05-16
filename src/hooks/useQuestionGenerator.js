@@ -1,126 +1,143 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from "react";
 
-const API_URL = 'https://api.anthropic.com/v1/messages'
-const MODEL = 'claude-sonnet-4-20250514'
-const VALID_DIFFICULTIES = new Set(['easy', 'medium', 'hard'])
+const VALID_DIFFICULTIES = new Set(["easy", "medium", "hard"]);
 
 function normalizeQuestion(question, index) {
   if (
     !question ||
-    typeof question.question !== 'string' ||
+    typeof question.question !== "string" ||
     !Array.isArray(question.options) ||
     question.options.length !== 4
-  ) {
-    return null
-  }
+  )
+    return null;
 
-  const correctIndex = Number(question.correctIndex)
-  if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex > 3) {
-    return null
-  }
+  const correctIndex = Number(question.correctIndex);
+  if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex > 3)
+    return null;
 
   const difficulty = VALID_DIFFICULTIES.has(question.difficulty)
     ? question.difficulty
-    : 'medium'
+    : "medium";
+
+  const correctAnswer = String(question.options[correctIndex]);
 
   return {
     id: `${difficulty}-${index}-${question.question}`,
     question: question.question.trim(),
-    options: question.options.map((option) => String(option)),
+    options: question.options.map((o) => String(o)),
     correctIndex,
-    answer: String(question.options[correctIndex]),
+    answer: correctAnswer,
     difficulty,
-    points:
-      difficulty === 'easy' ? 10 : difficulty === 'medium' ? 15 : 20,
-  }
+    points: difficulty === "easy" ? 10 : difficulty === "medium" ? 15 : 20,
+  };
 }
 
 export function useQuestionGenerator(topic) {
-  const [questions, setQuestions] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [questions, setQuestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const isFetchingRef = useRef(false);
+  const cacheRef = useRef({});
+  const topicRef = useRef(null);
 
   useEffect(() => {
     if (!topic) {
-      setQuestions([])
-      setIsLoading(false)
-      setError('')
-      return
+      topicRef.current = null;
+      setQuestions([]);
+      setIsLoading(false);
+      setError("");
+      return;
     }
 
-    const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+    if (topic === topicRef.current) return;
+    topicRef.current = topic;
+
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
-      setQuestions([])
-      setIsLoading(false)
-      setError('Missing Anthropic API key.')
-      return
+      setError("Missing Gemini API key.");
+      return;
     }
 
-    let cancelled = false
+    if (cacheRef.current[topic]) {
+      console.log("💾 Cache hit for topic:", topic);
+      setQuestions(cacheRef.current[topic]);
+      return;
+    }
+
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
+    let cancelled = false;
 
     async function generateQuestions() {
-      setIsLoading(true)
-      setError('')
+      setIsLoading(true);
+      setError("");
 
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
+        console.log("🚀 Fetching questions for topic:", topic);
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: `Generate 10 quiz questions about ${topic}.
+Return ONLY a valid JSON array, no markdown, no backticks, no explanation.
+Each object must have exactly:
+{ "question": string, "options": [string, string, string, string], "correctIndex": number, "difficulty": "easy"|"medium"|"hard", "points": number }
+correctIndex is the index (0-3) of the correct answer in the options array.
+points: easy=10, medium=15, hard=20. Mix: 3 easy, 4 medium, 3 hard.`,
+                    },
+                  ],
+                },
+              ],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
+            }),
           },
-          body: JSON.stringify({
-            model: MODEL,
-            max_tokens: 2500,
-            system:
-              'You are a quiz question generator. Return ONLY a valid JSON array. No markdown, no backticks, no explanation. Just the raw JSON array.',
-            messages: [
-              {
-                role: 'user',
-                content: `Generate 20 quiz questions about ${topic}. Return a JSON array where each object has: { question, options: [A,B,C,D], correctIndex, difficulty, points } difficulty is easy/medium/hard. points: easy=10, medium=15, hard=20. Mix: 7 easy, 7 medium, 6 hard. Make questions fun and challenging.`,
-              },
-            ],
-          }),
-        })
+        );
 
-        if (!response.ok) {
-          throw new Error(`Anthropic request failed with status ${response.status}`)
-        }
+        if (!response.ok) throw new Error(`Gemini error: ${response.status}`);
 
-        const data = await response.json()
-        const content = data?.content?.[0]?.text ?? '[]'
-        const parsed = JSON.parse(content)
+        const data = await response.json();
+        const text = data.candidates[0].content.parts[0].text;
+        const clean = text.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(clean);
 
-        if (!Array.isArray(parsed)) {
-          throw new Error('Anthropic returned invalid question data.')
-        }
+        if (!Array.isArray(parsed)) throw new Error("Invalid response format");
 
-        const normalized = parsed
-          .map(normalizeQuestion)
-          .filter(Boolean)
+        const normalized = parsed.map(normalizeQuestion).filter(Boolean);
+        console.log(
+          "✅ AI questions ready:",
+          normalized.length,
+          "for topic:",
+          topic,
+        );
 
         if (!cancelled) {
-          setQuestions(normalized)
+          cacheRef.current[topic] = normalized;
+          setQuestions(normalized);
         }
-      } catch (caughtError) {
+      } catch (err) {
+        console.error("❌ Question generation failed:", err);
         if (!cancelled) {
-          setQuestions([])
-          setError(caughtError.message || 'Failed to generate questions.')
+          setQuestions([]);
+          setError(err.message || "Failed to generate questions.");
         }
       } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
+        isFetchingRef.current = false;
+        if (!cancelled) setIsLoading(false);
       }
     }
 
-    generateQuestions()
-
+    generateQuestions();
     return () => {
-      cancelled = true
-    }
-  }, [topic])
+      cancelled = true;
+    };
+  }, [topic]);
 
-  return { questions, isLoading, error }
+  return { questions, isLoading, error };
 }

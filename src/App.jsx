@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import questions from "./data/questions.json";
+import staticQuestions from "./data/questions.json";
 import {
   CONTRACT_ADDRESS,
   getLeaderboardEntries,
@@ -73,7 +73,7 @@ function buildRoundQuestions(pool) {
 
   return shuffleArray(roundQuestions).map((question) => ({
     ...question,
-    options: shuffleArray(question.options),
+    // DO NOT reshuffle options — correctIndex and answer are already set
   }));
 }
 
@@ -104,7 +104,7 @@ function App() {
     useQuestionGenerator(selectedTopic);
   const [gameState, setGameState] = useState("idle");
   const [gameQuestions, setGameQuestions] = useState(() =>
-    buildRoundQuestions(questions),
+    buildRoundQuestions(staticQuestions),
   );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -125,6 +125,9 @@ function App() {
   const totalPointsRef = useRef(totalPoints);
   const timeLeftRef = useRef(timeLeft);
 
+  // REMOVED: questionsToUse, useAiQuestions, and the console.log that
+  // were running on every render and causing infinite re-render spam.
+
   const currentQuestion = gameQuestions[currentQuestionIndex];
   const canSubmitScore =
     Boolean(account) &&
@@ -133,11 +136,8 @@ function App() {
     finalScore > 0 &&
     !hasSubmittedRound;
 
-  const liveScore = useMemo(
-    () => totalPoints + timeLeft,
-    [timeLeft, totalPoints],
-  );
-  const baseScore = useMemo(() => totalPoints, [totalPoints]);
+  const liveScore = totalPoints + timeLeft;
+  const baseScore = totalPoints;
 
   useEffect(() => {
     correctAnswersRef.current = correctAnswers;
@@ -226,9 +226,15 @@ function App() {
   }, [account, publicClient, refreshTick]);
 
   function startGame() {
-    setGameQuestions(
-      buildRoundQuestions(aiQuestions.length > 0 ? aiQuestions : questions),
+    const pool =
+      selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
+    console.log(
+      "📚 Using:",
+      selectedTopic && aiQuestions.length > 0
+        ? "AI questions"
+        : "Static fallback",
     );
+    setGameQuestions(buildRoundQuestions(pool));
     setCurrentQuestionIndex(0);
     setCorrectAnswers(0);
     setTotalPoints(0);
@@ -343,7 +349,11 @@ function App() {
             </div>
           </div>
           <TopicSelector
-            onTopicSelect={setSelectedTopic}
+            onTopicSelect={(topic) =>
+              setSelectedTopic((currentTopic) =>
+                currentTopic === topic ? currentTopic : topic,
+              )
+            }
             selectedTopic={selectedTopic}
             isLoading={isGeneratingQuestions}
           />
