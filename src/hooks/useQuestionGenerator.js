@@ -52,9 +52,10 @@ export function useQuestionGenerator(topic) {
     if (topic === topicRef.current) return;
     topicRef.current = topic;
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+
     if (!apiKey) {
-      setError("Missing Gemini API key.");
+      setError("Missing Groq API key.");
       return;
     }
 
@@ -76,34 +77,45 @@ export function useQuestionGenerator(topic) {
       try {
         console.log("🚀 Fetching questions for topic:", topic);
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+          "https://api.groq.com/openai/v1/chat/completions",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
             body: JSON.stringify({
-              contents: [
+              model: "llama-3.1-8b-instant",
+              temperature: 0.7,
+              max_tokens: 2000,
+              messages: [
                 {
-                  parts: [
-                    {
-                      text: `Generate 10 quiz questions about ${topic}.
-Return ONLY a valid JSON array, no markdown, no backticks, no explanation.
+                  role: "system",
+                  content:
+                    "You are a quiz question generator. Return ONLY a valid JSON array. No markdown, no backticks, no explanation. Just the raw JSON array.",
+                },
+                {
+                  role: "user",
+                  content: `Generate 10 quiz questions about ${topic}.
 Each object must have exactly:
 { "question": string, "options": [string, string, string, string], "correctIndex": number, "difficulty": "easy"|"medium"|"hard", "points": number }
 correctIndex is the index (0-3) of the correct answer in the options array.
 points: easy=10, medium=15, hard=20. Mix: 3 easy, 4 medium, 3 hard.`,
-                    },
-                  ],
                 },
               ],
-              generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
             }),
           },
         );
 
-        if (!response.ok) throw new Error(`Gemini error: ${response.status}`);
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(
+            `Groq error: ${response.status} — ${errData?.error?.message || "unknown"}`,
+          );
+        }
 
         const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text;
+        const text = data.choices[0].message.content;
         const clean = text.replace(/```json|```/g, "").trim();
         const parsed = JSON.parse(clean);
 
