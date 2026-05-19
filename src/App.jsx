@@ -359,7 +359,7 @@ function App() {
           />
           <div className="panel-header">
             <div />
-            <button className="ghost-button" onClick={startGame}>
+            <button className="primary-button" onClick={startGame}>
               {gameState === "playing" ? "Restart Run" : "Start Game"}
             </button>
           </div>
