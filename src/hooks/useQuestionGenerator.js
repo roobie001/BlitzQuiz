@@ -2,6 +2,15 @@ import { useEffect, useRef, useState } from "react";
 
 const VALID_DIFFICULTIES = new Set(["easy", "medium", "hard"]);
 
+function shuffleArray(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 function normalizeQuestion(question, index) {
   if (
     !question ||
@@ -19,18 +28,27 @@ function normalizeQuestion(question, index) {
     ? question.difficulty
     : "medium";
 
+  // Track correct answer by VALUE not index before shuffling
   const correctAnswer = String(question.options[correctIndex]);
+
+  // Shuffle options randomly
+  const shuffledOptions = shuffleArray(question.options.map((o) => String(o)));
+
+  // Find new position of correct answer after shuffle
+  const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
 
   return {
     id: `${difficulty}-${index}-${question.question}`,
     question: question.question.trim(),
-    options: question.options.map((o) => String(o)),
-    correctIndex,
+    options: shuffledOptions,
+    correctIndex: newCorrectIndex,
     answer: correctAnswer,
     difficulty,
     points: difficulty === "easy" ? 10 : difficulty === "medium" ? 15 : 20,
   };
 }
+
+const FIVE_MINUTES = 5 * 60 * 1000;
 
 export function useQuestionGenerator(topic) {
   const [questions, setQuestions] = useState([]);
@@ -59,10 +77,19 @@ export function useQuestionGenerator(topic) {
       return;
     }
 
-    if (cacheRef.current[topic]) {
+    // Check cache with expiry — if within 5 minutes reuse, otherwise refetch
+    const cached = cacheRef.current[topic];
+    if (cached && Date.now() - cached.timestamp < FIVE_MINUTES) {
       console.log("💾 Cache hit for topic:", topic);
-      setQuestions(cacheRef.current[topic]);
+      setQuestions(cached.questions);
       return;
+    }
+
+    // Cache expired or missing — reset topicRef so hook can refetch
+    if (cached && Date.now() - cached.timestamp >= FIVE_MINUTES) {
+      console.log("⏰ Cache expired for topic:", topic, "— refetching");
+      topicRef.current = null;
+      delete cacheRef.current[topic];
     }
 
     if (isFetchingRef.current) return;
@@ -86,7 +113,7 @@ export function useQuestionGenerator(topic) {
             },
             body: JSON.stringify({
               model: "llama-3.1-8b-instant",
-              temperature: 0.7,
+              temperature: 0.9,
               max_tokens: 2000,
               messages: [
                 {
@@ -100,6 +127,8 @@ export function useQuestionGenerator(topic) {
 Each object must have exactly:
 { "question": string, "options": [string, string, string, string], "correctIndex": number, "difficulty": "easy"|"medium"|"hard", "points": number }
 correctIndex is the index (0-3) of the correct answer in the options array.
+IMPORTANT: Vary the correctIndex — do not always put the correct answer first.
+Distribute correctIndex values across 0, 1, 2, and 3 randomly.
 points: easy=10, medium=15, hard=20. Mix: 3 easy, 4 medium, 3 hard.`,
                 },
               ],
@@ -130,7 +159,11 @@ points: easy=10, medium=15, hard=20. Mix: 3 easy, 4 medium, 3 hard.`,
         );
 
         if (!cancelled) {
-          cacheRef.current[topic] = normalized;
+          // Store with timestamp for expiry
+          cacheRef.current[topic] = {
+            questions: normalized,
+            timestamp: Date.now(),
+          };
           setQuestions(normalized);
         }
       } catch (err) {
