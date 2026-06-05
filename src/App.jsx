@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import staticQuestions from "./data/questions.json";
 import {
@@ -7,30 +7,28 @@ import {
   getPlayerStats,
 } from "./lib/contract";
 import { useMiniPay } from "./useMiniPay";
-import { TopicSelector } from "./components/TopicSelector";
 import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
-const ROUND_DISTRIBUTION = {
-  easy: 4,
-  medium: 4,
-  hard: 2,
-};
-const POINTS_MAP = {
-  easy: 10,
-  medium: 15,
-  hard: 20,
-};
+const ROUND_DISTRIBUTION = { easy: 4, medium: 4, hard: 2 };
+const POINTS_MAP = { easy: 10, medium: 15, hard: 20 };
+
+const TOPICS = [
+  { id: "Crypto & Web3", emoji: "🔗" },
+  { id: "Science", emoji: "🔬" },
+  { id: "History", emoji: "📜" },
+  { id: "Sports", emoji: "⚽" },
+  { id: "Pop Culture", emoji: "🎬" },
+  { id: "General Knowledge", emoji: "🎲" },
+];
 
 function shuffleArray(items) {
   const copy = [...items];
-
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-
   return copy;
 }
 
@@ -39,50 +37,63 @@ function pickRandom(items, count) {
 }
 
 function buildRoundQuestions(pool) {
-  const validQuestions = pool.filter((question) =>
-    ["easy", "medium", "hard"].includes(question.difficulty),
+  const valid = pool.filter((q) =>
+    ["easy", "medium", "hard"].includes(q.difficulty),
   );
-  const easy = validQuestions.filter(
-    (question) => question.difficulty === "easy",
-  );
-  const medium = validQuestions.filter(
-    (question) => question.difficulty === "medium",
-  );
-  const hard = validQuestions.filter(
-    (question) => question.difficulty === "hard",
-  );
+  const easy = valid.filter((q) => q.difficulty === "easy");
+  const medium = valid.filter((q) => q.difficulty === "medium");
+  const hard = valid.filter((q) => q.difficulty === "hard");
 
-  let roundQuestions = [];
-
+  let round = [];
   if (
     easy.length >= ROUND_DISTRIBUTION.easy &&
     medium.length >= ROUND_DISTRIBUTION.medium &&
     hard.length >= ROUND_DISTRIBUTION.hard
   ) {
-    roundQuestions = [
+    round = [
       ...pickRandom(easy, ROUND_DISTRIBUTION.easy),
       ...pickRandom(medium, ROUND_DISTRIBUTION.medium),
       ...pickRandom(hard, ROUND_DISTRIBUTION.hard),
     ];
   } else {
-    roundQuestions = pickRandom(
-      validQuestions.length > 0 ? validQuestions : pool,
-      QUESTIONS_PER_GAME,
-    );
+    round = pickRandom(valid.length > 0 ? valid : pool, QUESTIONS_PER_GAME);
   }
 
-  return shuffleArray(roundQuestions).map((question) => ({
-    ...question,
-    // DO NOT reshuffle options — correctIndex and answer are already set
-  }));
+  return shuffleArray(round).map((q) => ({ ...q }));
 }
 
-function shortenAddress(address) {
-  if (!address) return "Not connected";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+function shortenAddress(addr) {
+  if (!addr) return "Not connected";
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function App() {
+function TimerRing({ timeLeft, total = GAME_DURATION }) {
+  const r = 38;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - timeLeft / total);
+  const color = timeLeft > 20 ? "green" : timeLeft > 10 ? "orange" : "red";
+
+  return (
+    <div className="timer-section">
+      <div className="timer-ring-wrap">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle className="timer-ring-bg" cx="50" cy="50" r={r} />
+          <circle
+            className={`timer-ring-bar ${color}`}
+            cx="50"
+            cy="50"
+            r={r}
+            strokeDasharray={circ}
+            strokeDashoffset={offset}
+          />
+        </svg>
+        <div className={`timer-number ${color}`}>{timeLeft}</div>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
   const {
     account,
     chainId,
@@ -99,9 +110,11 @@ function App() {
     txError,
     txStatus,
   } = useMiniPay();
+
   const [selectedTopic, setSelectedTopic] = useState(null);
   const { questions: aiQuestions, isLoading: isGeneratingQuestions } =
     useQuestionGenerator(selectedTopic);
+
   const [gameState, setGameState] = useState("idle");
   const [gameQuestions, setGameQuestions] = useState(() =>
     buildRoundQuestions(staticQuestions),
@@ -113,6 +126,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [finalScore, setFinalScore] = useState(0);
   const [hasSubmittedRound, setHasSubmittedRound] = useState(false);
+  const [flashAnswer, setFlashAnswer] = useState(null); // {index, correct}
   const [leaderboard, setLeaderboard] = useState([]);
   const [playerStats, setPlayerStats] = useState({
     bestScore: 0,
@@ -121,14 +135,14 @@ function App() {
   const [loadingBoard, setLoadingBoard] = useState(false);
   const [boardError, setBoardError] = useState("");
   const [refreshTick, setRefreshTick] = useState(0);
+  const [boardOpen, setBoardOpen] = useState(false);
+
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
   const timeLeftRef = useRef(timeLeft);
 
-  // REMOVED: questionsToUse, useAiQuestions, and the console.log that
-  // were running on every render and causing infinite re-render spam.
-
   const currentQuestion = gameQuestions[currentQuestionIndex];
+
   const canSubmitScore =
     Boolean(account) &&
     Boolean(CONTRACT_ADDRESS) &&
@@ -136,8 +150,10 @@ function App() {
     finalScore > 0 &&
     !hasSubmittedRound;
 
-  const liveScore = totalPoints + timeLeft;
-  const baseScore = totalPoints;
+  const liveScore = useMemo(
+    () => totalPoints + timeLeft,
+    [timeLeft, totalPoints],
+  );
 
   useEffect(() => {
     correctAnswersRef.current = correctAnswers;
@@ -149,49 +165,39 @@ function App() {
     remainingTime = timeLeftRef.current,
     finalPoints = totalPointsRef.current,
   ) {
-    setGameState((currentState) => {
-      if (currentState !== "playing") return currentState;
+    setGameState((s) => {
+      if (s !== "playing") return s;
       setFinalScore(finalPoints + remainingTime);
       return "finished";
     });
   }
 
   useEffect(() => {
-    if (gameState !== "playing") return undefined;
-
+    if (gameState !== "playing") return;
     const timer = window.setInterval(() => {
-      setTimeLeft((currentTime) => {
-        if (currentTime <= 1) {
+      setTimeLeft((t) => {
+        if (t <= 1) {
           window.clearInterval(timer);
           endGame(0);
           return 0;
         }
-
-        return currentTime - 1;
+        return t - 1;
       });
     }, 1000);
-
     return () => window.clearInterval(timer);
   }, [gameState]);
 
   useEffect(() => {
-    if (
-      gameState === "playing" &&
-      currentQuestionIndex >= gameQuestions.length
-    ) {
+    if (gameState === "playing" && currentQuestionIndex >= gameQuestions.length)
       endGame();
-    }
   }, [currentQuestionIndex, gameQuestions.length, gameState]);
 
   useEffect(() => {
-    if (!publicClient || !CONTRACT_ADDRESS) return undefined;
-
+    if (!publicClient || !CONTRACT_ADDRESS) return;
     let cancelled = false;
-
     async function loadLeaderboard() {
       setLoadingBoard(true);
       setBoardError("");
-
       try {
         const [entries, stats] = await Promise.all([
           getLeaderboardEntries(publicClient),
@@ -199,27 +205,19 @@ function App() {
             ? getPlayerStats(publicClient, account)
             : Promise.resolve(null),
         ]);
-
         if (cancelled) return;
-
         setLeaderboard(entries);
-        if (stats) {
-          setPlayerStats(stats);
-        }
-      } catch (error) {
+        if (stats) setPlayerStats(stats);
+      } catch (err) {
         if (cancelled) return;
         setBoardError(
-          error.shortMessage || error.message || "Unable to load leaderboard.",
+          err.shortMessage || err.message || "Unable to load leaderboard.",
         );
       } finally {
-        if (!cancelled) {
-          setLoadingBoard(false);
-        }
+        if (!cancelled) setLoadingBoard(false);
       }
     }
-
     loadLeaderboard();
-
     return () => {
       cancelled = true;
     };
@@ -228,12 +226,6 @@ function App() {
   function startGame() {
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
-    console.log(
-      "📚 Using:",
-      selectedTopic && aiQuestions.length > 0
-        ? "AI questions"
-        : "Static fallback",
-    );
     setGameQuestions(buildRoundQuestions(pool));
     setCurrentQuestionIndex(0);
     setCorrectAnswers(0);
@@ -242,359 +234,331 @@ function App() {
     setTimeLeft(GAME_DURATION);
     setFinalScore(0);
     setHasSubmittedRound(false);
+    setFlashAnswer(null);
     setGameState("playing");
   }
 
-  function handleAnswer(selectedAnswer) {
+  function handleAnswer(selectedAnswer, optionIndex) {
     if (gameState !== "playing" || !currentQuestion) return;
-
     const isCorrect = selectedAnswer === currentQuestion.answer;
     const questionPoints = POINTS_MAP[currentQuestion.difficulty] ?? 10;
     const nextPoints = totalPoints + (isCorrect ? questionPoints : 0);
-    const nextQuestionIndex = currentQuestionIndex + 1;
+    const nextIndex = currentQuestionIndex + 1;
 
-    setAnsweredQuestions((count) => count + 1);
-    if (isCorrect) {
-      setCorrectAnswers((count) => count + 1);
-      setTotalPoints((points) => points + questionPoints);
-    }
-
-    if (nextQuestionIndex >= gameQuestions.length) {
-      endGame(timeLeft, nextPoints);
-      return;
-    }
-
-    setCurrentQuestionIndex(nextQuestionIndex);
+    setFlashAnswer({ index: optionIndex, correct: isCorrect });
+    setTimeout(() => {
+      setFlashAnswer(null);
+      setAnsweredQuestions((c) => c + 1);
+      if (isCorrect) {
+        setCorrectAnswers((c) => c + 1);
+        setTotalPoints((p) => p + questionPoints);
+      }
+      if (nextIndex >= gameQuestions.length) {
+        endGame(timeLeft, nextPoints);
+        return;
+      }
+      setCurrentQuestionIndex(nextIndex);
+    }, 300);
   }
 
   async function handleSubmitScore() {
     try {
       await submitScore(finalScore);
       setHasSubmittedRound(true);
-      setRefreshTick((value) => value + 1);
+      setRefreshTick((v) => v + 1);
     } catch {
-      // Error state is surfaced by the hook so the UI stays simple here.
+      /* surfaced by hook */
     }
   }
 
+  const rankClass = (i) =>
+    i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "other";
+
   return (
-    <main className="app-shell">
-      <section className="hero-panel">
-        <div className="hero-copy">
-          <span className="eyebrow">Proof of Ship MiniPay Game</span>
-          <h1>BlitzQuiz</h1>
-          <p className="hero-lead">
-            Race through a 60-second knowledge battle, lock in your score, and
-            post it onchain with a single MiniPay transaction.
-          </p>
-          <div className="hero-explainer">
-            <div className="explainer-item">
-              <strong>1. Play fast</strong>
-              <span>
-                Answer as many quiz questions as you can in 60 seconds.
-              </span>
-            </div>
-            <div className="explainer-item">
-              <strong>2. Save time</strong>
-              <span>
-                Your final score is correct answers plus the seconds left on the
-                clock.
-              </span>
-            </div>
-            <div className="explainer-item">
-              <strong>3. Submit once</strong>
-              <span>
-                Only one onchain transaction is used per completed game.
-              </span>
-            </div>
-          </div>
+    <div className="app-shell">
+      {/* ── Header ── */}
+      <header className="app-header">
+        <span className="app-logo">BlitzQuiz</span>
+        <div
+          className="wallet-chip"
+          onClick={account ? undefined : connectWallet}
+        >
+          <span className={`wallet-dot ${account ? "connected" : ""}`} />
+          {account
+            ? shortenAddress(account)
+            : detectedAccount
+              ? "Tap to connect"
+              : "No wallet"}
         </div>
+      </header>
 
-        <div className="status-strip">
-          <div className="status-card">
-            <span className="status-label">Wallet</span>
-            <strong>
-              {account
-                ? shortenAddress(account)
-                : detectedAccount
-                  ? "Wallet detected"
-                  : "Not connected"}
-            </strong>
-          </div>
-          <div className="status-card">
-            <span className="status-label">Network</span>
-            <strong>
-              {chainId
-                ? `${supportedChain.name} (${chainId})`
-                : "Connect to continue"}
-            </strong>
-          </div>
-          <div className="status-card">
-            <span className="status-label">Contract</span>
-            <strong>{CONTRACT_ADDRESS ? "Configured" : "Set env var"}</strong>
-          </div>
-        </div>
-      </section>
-
-      <section className="content-grid">
-        <div className="game-panel">
-          <div className="panel-header">
-            <div>
-              <span className="eyebrow">Game Screen</span>
-              <h2>60s Knowledge Battle</h2>
-              <p className="section-note">
-                Build points from correct answers, then protect your time bonus
-                before the timer runs out.
-              </p>
+      {/* ── Game State: idle or finished ── */}
+      {gameState !== "playing" && (
+        <>
+          {/* Topic Selector */}
+          <div className="card topic-section" style={{ marginBottom: 16 }}>
+            <div className="topic-label">Choose a topic</div>
+            <div className="topic-grid">
+              {TOPICS.map((t) => (
+                <button
+                  key={t.id}
+                  className={`topic-btn${selectedTopic === t.id ? " selected" : ""}${isGeneratingQuestions ? " loading" : ""}`}
+                  onClick={() =>
+                    setSelectedTopic((cur) => (cur === t.id ? cur : t.id))
+                  }
+                  disabled={isGeneratingQuestions}
+                >
+                  <span className="topic-emoji">{t.emoji}</span>
+                  {t.id}
+                </button>
+              ))}
             </div>
-          </div>
-          <TopicSelector
-            onTopicSelect={(topic) =>
-              setSelectedTopic((currentTopic) =>
-                currentTopic === topic ? currentTopic : topic,
-              )
-            }
-            selectedTopic={selectedTopic}
-            isLoading={isGeneratingQuestions}
-          />
-          <div className="panel-header">
-            <div />
-            <button className="primary-button" onClick={startGame}>
-              {gameState === "playing" ? "Restart Run" : "Start Game"}
-            </button>
+            {isGeneratingQuestions && (
+              <div className="topic-generating">
+                <span className="spinner" />
+                Generating questions…
+              </div>
+            )}
           </div>
 
-          <div className="score-ribbon">
-            <div>
-              <span>Timer</span>
-              <strong>{timeLeft}s</strong>
-            </div>
-            <div>
-              <span>Base Score</span>
-              <strong>{baseScore}</strong>
-            </div>
-            <div>
-              <span>Time Bonus</span>
-              <strong>{timeLeft}</strong>
-            </div>
-            <div>
-              <span>Potential Final</span>
-              <strong>{liveScore}</strong>
-            </div>
-          </div>
-          <p className="score-note">
-            The total can go down during the round because the time bonus drops
-            every second. Your correct-answer points never decrease.
-          </p>
+          {/* Start Button */}
+          <button
+            className={`start-btn${isGeneratingQuestions ? " loading-state" : ""}`}
+            onClick={startGame}
+            disabled={isGeneratingQuestions}
+          >
+            {isGeneratingQuestions ? (
+              <>
+                <span className="spinner" /> Generating…
+              </>
+            ) : gameState === "finished" ? (
+              "Play Again"
+            ) : (
+              "Start Game"
+            )}
+          </button>
 
-          {gameState !== "playing" && (
-            <div className="card game-card">
-              <p className="card-tag">How scoring works</p>
-              <h3>
-                {gameState === "finished"
-                  ? "Round complete"
-                  : "Tap in and play instantly"}
-              </h3>
-              <p>
-                Score formula: <code>totalPoints + remainingTime</code>
-              </p>
-              <p>
-                Easy answers give 10 points, medium answers give 15, and hard
-                answers give 20. Every second left adds a time bonus.
-              </p>
-              {gameState === "finished" && (
-                <div className="end-state">
-                  <div className="final-score">
-                    <span>Final Score</span>
-                    <strong>{finalScore}</strong>
-                  </div>
+          {/* Result Card */}
+          {gameState === "finished" && (
+            <div className="card result-card" style={{ marginBottom: 16 }}>
+              <div className="result-label">Final Score</div>
+              <div className="result-score">{finalScore}</div>
+              <div className="result-sub">{correctAnswers} correct answers</div>
+              <div className="result-actions">
+                <button
+                  className="primary-button"
+                  onClick={handleSubmitScore}
+                  disabled={!canSubmitScore || txStatus === "pending"}
+                >
+                  {txStatus === "pending"
+                    ? "Submitting…"
+                    : hasSubmittedRound
+                      ? "✓ Submitted"
+                      : "Submit Score Onchain"}
+                </button>
+                {!account && (
                   <button
-                    className="primary-button"
-                    onClick={handleSubmitScore}
-                    disabled={!canSubmitScore || txStatus === "pending"}
+                    className="secondary-button"
+                    onClick={connectWallet}
+                    disabled={isConnecting}
                   >
-                    {txStatus === "pending"
-                      ? "Submitting..."
-                      : hasSubmittedRound
-                        ? "Score Submitted"
-                        : "Submit Score"}
+                    {isConnecting ? "Connecting…" : "Connect MiniPay"}
                   </button>
-                  <button className="ghost-button" onClick={startGame}>
-                    Play Again
+                )}
+                {account && !isOnSupportedChain && (
+                  <button
+                    className="secondary-button"
+                    onClick={switchToSupportedChain}
+                  >
+                    Switch to {supportedChain.name}
                   </button>
-                  {!account && (
-                    <button
-                      className="secondary-button"
-                      onClick={connectWallet}
-                      disabled={isConnecting}
-                    >
-                      {isConnecting ? "Connecting..." : "Connect MiniPay"}
-                    </button>
-                  )}
-                  {account && !isOnSupportedChain && (
-                    <button
-                      className="secondary-button"
-                      onClick={switchToSupportedChain}
-                    >
-                      Switch to {supportedChain.name}
-                    </button>
-                  )}
-                  {!CONTRACT_ADDRESS && (
-                    <p className="hint">
-                      Add <code>VITE_CONTRACT_ADDRESS</code> after deployment to
-                      enable score submission.
-                    </p>
-                  )}
-                  {hasSubmittedRound && (
-                    <p className="success-text">
-                      This round is locked in. Start a new game to post another
-                      score.
-                    </p>
-                  )}
-                </div>
-              )}
+                )}
+                {txStatus === "success" && (
+                  <p className="success-text">✓ Score posted onchain!</p>
+                )}
+                {txError && <p className="error-text">{txError}</p>}
+                {!CONTRACT_ADDRESS && (
+                  <p className="hint">
+                    Set <code>VITE_CONTRACT_ADDRESS</code> to enable submission.
+                  </p>
+                )}
+              </div>
             </div>
           )}
+        </>
+      )}
 
-          {gameState === "playing" && currentQuestion && (
-            <div className="card game-card">
-              <div className="question-meta">
+      {/* ── Game State: playing ── */}
+      {gameState === "playing" && (
+        <>
+          <TimerRing timeLeft={timeLeft} />
+          <div className="score-mini">
+            Base <strong>{totalPoints}</strong> &nbsp;·&nbsp; Potential{" "}
+            <strong>{liveScore}</strong>
+          </div>
+
+          {currentQuestion && (
+            <div className="card question-card" style={{ marginTop: 16 }}>
+              <div className="q-meta">
                 <span>
-                  Question {currentQuestionIndex + 1} / {gameQuestions.length}
+                  Q{currentQuestionIndex + 1} / {gameQuestions.length}
                 </span>
                 <span>{answeredQuestions} answered</span>
               </div>
-              <h3>{currentQuestion.question}</h3>
+              <div className="q-text">{currentQuestion.question}</div>
               <div className="answer-grid">
-                {currentQuestion.options.map((option) => (
-                  <button
-                    key={option}
-                    className="answer-button"
-                    onClick={() => handleAnswer(option)}
-                  >
-                    {option}
-                  </button>
-                ))}
+                {currentQuestion.options.map((option, i) => {
+                  let cls = "answer-button";
+                  if (flashAnswer?.index === i) {
+                    cls += flashAnswer.correct ? " correct" : " wrong";
+                  }
+                  return (
+                    <button
+                      key={option}
+                      className={cls}
+                      onClick={() => handleAnswer(option, i)}
+                      disabled={flashAnswer !== null}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
+        </>
+      )}
+
+      <div className="section-divider" />
+
+      {/* ── Wallet Card ── */}
+      <div className="card wallet-card" style={{ marginBottom: 16 }}>
+        <div className="wallet-card-title">Wallet & Chain</div>
+        <p>
+          {isMiniPay
+            ? "MiniPay detected."
+            : "Injected wallet fallback for desktop testing."}
+        </p>
+        {detectedAccount && !account && (
+          <p>Found: {shortenAddress(detectedAccount)}. Tap connect to use.</p>
+        )}
+        <div className="wallet-actions">
+          {!account ? (
+            <button
+              className="connect-btn"
+              onClick={connectWallet}
+              disabled={isConnecting}
+            >
+              {isConnecting ? "Connecting…" : "Connect Wallet"}
+            </button>
+          ) : (
+            <>
+              <button className="connect-btn connected" disabled>
+                {shortenAddress(account)}
+              </button>
+              <button className="disconnect-btn" onClick={disconnectWallet}>
+                Disconnect
+              </button>
+            </>
+          )}
         </div>
+        {account && !isOnSupportedChain && (
+          <button
+            className="secondary-button"
+            style={{ marginTop: 10 }}
+            onClick={switchToSupportedChain}
+          >
+            Switch to {supportedChain.name}
+          </button>
+        )}
+      </div>
 
-        <aside className="side-panel">
-          <div className="card wallet-card">
-            <p className="card-tag">MiniPay</p>
-            <h3>Wallet and chain</h3>
-            <p>
-              {isMiniPay
-                ? "MiniPay environment detected."
-                : "Injected wallet fallback enabled for desktop testing."}
-            </p>
-            {detectedAccount && !account && (
-              <p className="section-note">
-                Wallet found: {shortenAddress(detectedAccount)}. Tap connect to
-                use it in BlitzQuiz.
-              </p>
-            )}
-            <div className="wallet-actions">
-              {!account && (
-                <button
-                  className="primary-button"
-                  onClick={connectWallet}
-                  disabled={isConnecting}
-                >
-                  {isConnecting ? "Connecting..." : "Connect Wallet"}
-                </button>
-              )}
-              {account && (
-                <>
-                  <button className="primary-button" disabled>
-                    Connected: {shortenAddress(account)}
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={disconnectWallet}
-                  >
-                    Disconnect
-                  </button>
-                </>
-              )}
-            </div>
-            <p className="section-note">
-              Connect to submit your best score onchain after the round ends.
-            </p>
-            {account && !isOnSupportedChain && (
-              <button
-                className="secondary-button"
-                onClick={switchToSupportedChain}
-              >
-                Switch to {supportedChain.name}
-              </button>
-            )}
-            {txStatus === "success" && (
-              <p className="success-text">
-                Score submitted successfully onchain.
-              </p>
-            )}
-            {txError && <p className="error-text">{txError}</p>}
+      {/* ── Stats ── */}
+      <div className="card stats-card" style={{ marginBottom: 16 }}>
+        <div className="stats-card-title">Your Stats</div>
+        <div className="stats-grid">
+          <div>
+            <span>Best Score</span>
+            <strong>{playerStats.bestScore}</strong>
           </div>
-
-          <div className="card player-card">
-            <p className="card-tag">Your Stats</p>
-            <h3>Best run</h3>
-            <div className="stats-grid">
-              <div>
-                <span>Best Score</span>
-                <strong>{playerStats.bestScore}</strong>
-              </div>
-              <div>
-                <span>Total Games</span>
-                <strong>{playerStats.totalGames}</strong>
-              </div>
-            </div>
+          <div>
+            <span>Total Games</span>
+            <strong>{playerStats.totalGames}</strong>
           </div>
+        </div>
+      </div>
 
-          <div className="card leaderboard-card">
-            <div className="panel-header compact">
-              <div>
-                <p className="card-tag">Leaderboard</p>
-                <h3>Top scores</h3>
-              </div>
-              <button
-                className="ghost-button"
-                onClick={() => setRefreshTick((value) => value + 1)}
+      {/* ── Leaderboard ── */}
+      <div className="card leaderboard-card">
+        <div
+          className="leaderboard-toggle"
+          onClick={() => setBoardOpen((o) => !o)}
+        >
+          <div className="leaderboard-toggle-title">🏆 Top Scores</div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button
+              className="leaderboard-refresh"
+              onClick={(e) => {
+                e.stopPropagation();
+                setRefreshTick((v) => v + 1);
+              }}
+            >
+              Refresh
+            </button>
+            <span className={`leaderboard-chevron ${boardOpen ? "open" : ""}`}>
+              ▼
+            </span>
+          </div>
+        </div>
+        <div className={`leaderboard-body ${boardOpen ? "open" : ""}`}>
+          {loadingBoard && (
+            <p
+              style={{
+                color: "var(--text-dim)",
+                fontSize: "0.85rem",
+                marginTop: 12,
+              }}
+            >
+              Loading…
+            </p>
+          )}
+          {boardError && (
+            <p className="error-text" style={{ marginTop: 12 }}>
+              {boardError}
+            </p>
+          )}
+          {!loadingBoard && !boardError && leaderboard.length === 0 && (
+            <p
+              style={{
+                color: "var(--text-dim)",
+                fontSize: "0.85rem",
+                marginTop: 12,
+              }}
+            >
+              No scores yet. Play and submit to claim the top spot!
+            </p>
+          )}
+          <div className="leaderboard-list">
+            {leaderboard.map((entry, i) => (
+              <div
+                className={`leaderboard-row ${rankClass(i)}`}
+                key={entry.address}
               >
-                Refresh
-              </button>
-            </div>
-
-            {loadingBoard && <p>Loading leaderboard...</p>}
-            {boardError && <p className="error-text">{boardError}</p>}
-            {!loadingBoard && !boardError && leaderboard.length === 0 && (
-              <p>
-                No onchain scores yet. Deploy the contract, set the env vars,
-                and claim the first spot.
-              </p>
-            )}
-
-            <div className="leaderboard-list">
-              {leaderboard.map((entry, index) => (
-                <div className="leaderboard-row" key={entry.address}>
-                  <div>
-                    <span className="rank">#{index + 1}</span>
-                    <strong>{shortenAddress(entry.address)}</strong>
-                  </div>
-                  <div className="leaderboard-score">
-                    <span>{entry.totalGames} games</span>
-                    <strong>{entry.bestScore}</strong>
-                  </div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span className={`rank ${rankClass(i)}`}>#{i + 1}</span>
+                  <span className="leaderboard-address">
+                    {shortenAddress(entry.address)}
+                  </span>
                 </div>
-              ))}
-            </div>
+                <div className="leaderboard-score">
+                  <span>{entry.totalGames} games</span>
+                  <strong>{entry.bestScore}</strong>
+                </div>
+              </div>
+            ))}
           </div>
-        </aside>
-      </section>
-    </main>
+        </div>
+      </div>
+    </div>
   );
 }
-
-export default App;
