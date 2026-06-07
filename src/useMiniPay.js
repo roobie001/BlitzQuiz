@@ -29,18 +29,26 @@ function getInjectedProvider() {
   const injectedProvider = window.ethereum ?? null;
   if (!injectedProvider) return null;
 
+  // Multiple wallets injected (e.g. MetaMask + Phantom)
   if (Array.isArray(injectedProvider.providers)) {
+    // 1. Always prefer MiniPay first
     const miniPayProvider = injectedProvider.providers.find(
-      (provider) => provider?.isMiniPay,
+      (p) => p?.isMiniPay,
     );
     if (miniPayProvider) return miniPayProvider;
 
-    const fallbackProvider = injectedProvider.providers.find(
-      (provider) => provider?.request && !provider?.isMetaMask,
+    // 2. Prefer MetaMask over other wallets (e.g. Phantom)
+    const metaMaskProvider = injectedProvider.providers.find(
+      (p) => p?.isMetaMask && !p?.isBraveWallet,
     );
-    if (fallbackProvider) return fallbackProvider;
+    if (metaMaskProvider) return metaMaskProvider;
+
+    // 3. Fall back to first available provider that supports requests
+    const anyProvider = injectedProvider.providers.find((p) => p?.request);
+    if (anyProvider) return anyProvider;
   }
 
+  // Single wallet injected — use it directly
   return injectedProvider;
 }
 
