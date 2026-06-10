@@ -151,7 +151,12 @@
   },
   {
     "question": "Who wrote 'Things Fall Apart'?",
-    "options": ["Chinua Achebe", "Wole Soyinka", "Ngugi wa Thiong'o", "Nadine Gordimer"],
+    "options": [
+      "Chinua Achebe",
+      "Wole Soyinka",
+      "Ngugi wa Thiong'o",
+      "Nadine Gordimer"
+    ],
     "answer": "Chinua Achebe",
     "difficulty": "medium"
   },
@@ -163,7 +168,12 @@
   },
   {
     "question": "Who painted the Mona Lisa?",
-    "options": ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Claude Monet"],
+    "options": [
+      "Leonardo da Vinci",
+      "Vincent van Gogh",
+      "Pablo Picasso",
+      "Claude Monet"
+    ],
     "answer": "Leonardo da Vinci",
     "difficulty": "medium"
   },
@@ -181,7 +191,12 @@
   },
   {
     "question": "Which scientist developed the theory of gravity after observing a falling apple?",
-    "options": ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"],
+    "options": [
+      "Isaac Newton",
+      "Albert Einstein",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
     "answer": "Isaac Newton",
     "difficulty": "medium"
   },
@@ -235,7 +250,12 @@
   },
   {
     "question": "Who was the first person to walk on the Moon?",
-    "options": ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "Michael Collins"],
+    "options": [
+      "Neil Armstrong",
+      "Buzz Aldrin",
+      "Yuri Gagarin",
+      "Michael Collins"
+    ],
     "answer": "Neil Armstrong",
     "difficulty": "medium"
   },
@@ -313,7 +333,12 @@
   },
   {
     "question": "Which scientist proposed the uncertainty principle?",
-    "options": ["Werner Heisenberg", "Niels Bohr", "Max Planck", "Erwin Schrodinger"],
+    "options": [
+      "Werner Heisenberg",
+      "Niels Bohr",
+      "Max Planck",
+      "Erwin Schrodinger"
+    ],
     "answer": "Werner Heisenberg",
     "difficulty": "hard"
   },
@@ -331,7 +356,12 @@
   },
   {
     "question": "In computing, what does CPU stand for?",
-    "options": ["Central Processing Unit", "Computer Primary Unit", "Central Program Utility", "Control Processing User"],
+    "options": [
+      "Central Processing Unit",
+      "Computer Primary Unit",
+      "Central Program Utility",
+      "Control Processing User"
+    ],
     "answer": "Central Processing Unit",
     "difficulty": "hard"
   },
@@ -353,12 +383,6 @@
     "answer": "Mediterranean Sea",
     "difficulty": "hard"
   },
-  {
-    "question": "What is the hardest natural substance on Earth?",
-    "options": ["Diamond", "Quartz", "Graphite", "Ruby"],
-    "answer": "Diamond",
-    "difficulty": "hard"
-  }
   {
     "question": "What is the hardest natural substance on Earth?",
     "options": ["Diamond", "Quartz", "Graphite", "Ruby"],
