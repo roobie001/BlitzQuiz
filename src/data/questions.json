@@ -359,4 +359,10 @@
     "answer": "Diamond",
     "difficulty": "hard"
   }
+  {
+    "question": "What is the hardest natural substance on Earth?",
+    "options": ["Diamond", "Quartz", "Graphite", "Ruby"],
+    "answer": "Diamond",
+    "difficulty": "hard"
+  }
 ]
