@@ -102,7 +102,6 @@ export function useQuestionGenerator(topic) {
       setError("");
 
       try {
-        console.log("🚀 Fetching questions for topic:", topic);
         const response = await fetch(
           "https://api.groq.com/openai/v1/chat/completions",
           {
@@ -151,12 +150,6 @@ points: easy=10, medium=15, hard=20. Mix: 3 easy, 4 medium, 3 hard.`,
         if (!Array.isArray(parsed)) throw new Error("Invalid response format");
 
         const normalized = parsed.map(normalizeQuestion).filter(Boolean);
-        console.log(
-          "✅ AI questions ready:",
-          normalized.length,
-          "for topic:",
-          topic,
-        );
 
         if (!cancelled) {
           // Store with timestamp for expiry
