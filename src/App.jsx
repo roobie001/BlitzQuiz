@@ -8,6 +8,7 @@ import {
 } from "./lib/contract";
 import { useMiniPay } from "./useMiniPay";
 import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
+import { StreakBadge } from "./components/StreakBadge";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -418,6 +419,9 @@ export default function App() {
                 </span>
                 <span>{answeredQuestions} answered</span>
               </div>
+
+              <StreakBadge streak={streak} />
+
               <div className="q-text">{currentQuestion.question}</div>
               <div className="answer-grid">
                 {currentQuestion.options.map((option, i) => {
