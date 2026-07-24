@@ -870,3 +870,19 @@ code {
     opacity: 1;
   }
 }
+
+.best-streak-result {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(255, 145, 0, 0.12);
+  border: 1px solid rgba(255, 145, 0, 0.3);
+  color: var(--orange);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.best-streak-result strong {
+  color: #fff;
+  margin-left: 4px;
+}
