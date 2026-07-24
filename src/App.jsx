@@ -228,6 +228,13 @@ export default function App() {
     };
   }, [account, publicClient, refreshTick]);
 
+  //
+  const streakRef = useRef(streak);
+
+  useEffect(() => {
+    streakRef.current = streak;
+  }, [streak]);
+
   function startGame() {
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
