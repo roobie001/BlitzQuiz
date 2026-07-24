@@ -519,6 +519,10 @@ export default function App() {
             <span>Total Games</span>
             <strong>{playerStats.totalGames}</strong>
           </div>
+          <div style={{ gridColumn: "span 2" }}>
+            <span>Best Streak This Session</span>
+            <strong>{bestStreak >= 2 ? `🔥 ${bestStreak}x` : "—"}</strong>
+          </div>
         </div>
       </div>
 
