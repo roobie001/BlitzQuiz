@@ -137,6 +137,10 @@ export default function App() {
   const [refreshTick, setRefreshTick] = useState(0);
   const [boardOpen, setBoardOpen] = useState(false);
 
+  // new state for new feature
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
   const timeLeftRef = useRef(timeLeft);
