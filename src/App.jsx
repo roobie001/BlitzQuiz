@@ -260,6 +260,9 @@ export default function App() {
       if (isCorrect) {
         setCorrectAnswers((c) => c + 1);
         setTotalPoints((p) => p + questionPoints);
+        const newStreak = streak + 1;
+        setStreak(newStreak);
+        setBestStreak((best) => Math.max(best, newStreak));
       }
       if (nextIndex >= gameQuestions.length) {
         endGame(timeLeft, nextPoints);
