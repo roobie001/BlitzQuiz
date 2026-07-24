@@ -263,6 +263,8 @@ export default function App() {
         const newStreak = streak + 1;
         setStreak(newStreak);
         setBestStreak((best) => Math.max(best, newStreak));
+      } else {
+        setStreak(0);
       }
       if (nextIndex >= gameQuestions.length) {
         endGame(timeLeft, nextPoints);
@@ -270,10 +272,6 @@ export default function App() {
       }
       setCurrentQuestionIndex(nextIndex);
     }, 300);
-
-    if (!isCorrect) {
-      setStreak(0);
-    }
   }
 
   async function handleSubmitScore() {
