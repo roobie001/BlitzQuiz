@@ -430,7 +430,7 @@ export default function App() {
                 <span>{answeredQuestions} answered</span>
               </div>
 
-              <StreakBadge streak={streak} />
+              <StreakBadge key={streak} streak={streak} />
 
               <div className="q-text">{currentQuestion.question}</div>
               <div className="answer-grid">
