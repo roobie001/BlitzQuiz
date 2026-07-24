@@ -409,6 +409,11 @@ export default function App() {
           <div className="score-mini">
             Base <strong>{totalPoints}</strong> &nbsp;·&nbsp; Potential{" "}
             <strong>{liveScore}</strong>
+            {streak >= 2 && (
+              <span style={{ marginLeft: 10, color: "var(--orange)" }}>
+                🔥 {streak}x
+              </span>
+            )}
           </div>
 
           {currentQuestion && (
