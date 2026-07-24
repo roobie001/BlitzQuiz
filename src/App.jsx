@@ -270,6 +270,10 @@ export default function App() {
       }
       setCurrentQuestionIndex(nextIndex);
     }, 300);
+
+    if (!isCorrect) {
+      setStreak(0);
+    }
   }
 
   async function handleSubmitScore() {
