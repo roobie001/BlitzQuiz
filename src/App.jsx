@@ -240,6 +240,10 @@ export default function App() {
     setHasSubmittedRound(false);
     setFlashAnswer(null);
     setGameState("playing");
+
+    //
+    setStreak(0);
+    setBestStreak(0);
   }
 
   function handleAnswer(selectedAnswer, optionIndex) {
