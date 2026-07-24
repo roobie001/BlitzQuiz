@@ -358,6 +358,11 @@ export default function App() {
               <div className="result-label">Final Score</div>
               <div className="result-score">{finalScore}</div>
               <div className="result-sub">{correctAnswers} correct answers</div>
+              {bestStreak >= 2 && (
+                <div className="best-streak-result">
+                  🔥 Best streak: <strong>{bestStreak}</strong>
+                </div>
+              )}
               <div className="result-actions">
                 <button
                   className="primary-button"
