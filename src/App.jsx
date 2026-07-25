@@ -489,7 +489,7 @@ export default function App() {
                 <span>
                   Q{currentQuestionIndex + 1} / {gameQuestions.length}
                 </span>
-                <span>{answeredQuestions} answered</span>
+                <DifficultyBadge difficulty={currentQuestion.difficulty} />
               </div>
 
               <StreakBadge key={streak} streak={streak} />
