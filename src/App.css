@@ -1096,3 +1096,15 @@ code {
     background-position: -200% 0;
   }
 }
+
+.leaderboard-empty {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.leaderboard-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
