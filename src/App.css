@@ -1043,3 +1043,7 @@ code {
     transform: translateX(3px);
   }
 }
+
+.urgent .answer-grid .answer-button {
+  border-color: rgba(255, 23, 68, 0.2);
+}
