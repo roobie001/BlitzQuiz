@@ -398,6 +398,13 @@ export default function App() {
                 : "No wallet"}
           </div>
         </div>
+        <button
+          className="help-btn"
+          onClick={() => setShowModal(true)}
+          title="How to play"
+        >
+          ?
+        </button>
       </header>
 
       {/* ── Game State: idle or finished ── */}
