@@ -85,7 +85,7 @@ function TimerRing({ timeLeft, total = GAME_DURATION }) {
 
   return (
     <div className="timer-section">
-      <div className="timer-ring-wrap">
+      <div className={`timer-ring-wrap${timeLeft <= 5 ? " shake" : ""}`}>
         <svg width="100" height="100" viewBox="0 0 100 100">
           <circle className="timer-ring-bg" cx="50" cy="50" r={r} />
           <circle
