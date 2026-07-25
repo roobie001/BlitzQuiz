@@ -719,6 +719,13 @@ export default function App() {
         )}
       </div>
       {showToast && <div className="toast">✅ Score copied to clipboard!</div>}
+      {showStats && (
+        <StatsModal
+          stats={playerStats}
+          bestStreak={bestStreak}
+          onClose={() => setShowStats(false)}
+        />
+      )}
     </div>
   );
 }
