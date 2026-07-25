@@ -147,7 +147,9 @@ export default function App() {
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showToast, setShowToast] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(
+    () => localStorage.getItem("blitzquiz-sound") !== "false",
+  );
 
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
@@ -308,6 +310,13 @@ export default function App() {
   function showToastMessage() {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
+  }
+
+  function toggleSound() {
+    setSoundEnabled((s) => {
+      localStorage.setItem("blitzquiz-sound", String(!s));
+      return !s;
+    });
   }
 
   const rankClass = (i) =>
