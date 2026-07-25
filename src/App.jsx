@@ -639,9 +639,15 @@ export default function App() {
             </p>
           )}
           {boardError && (
-            <p className="error-text" style={{ marginTop: 12 }}>
-              {boardError}
-            </p>
+            <div className="leaderboard-error">
+              <p className="error-text">{boardError}</p>
+              <button
+                className="leaderboard-refresh"
+                onClick={() => setRefreshTick((v) => v + 1)}
+              >
+                Retry
+              </button>
+            </div>
           )}
           {!loadingBoard && !boardError && leaderboard.length === 0 && (
             <div className="leaderboard-empty">
