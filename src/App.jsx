@@ -339,7 +339,7 @@ export default function App() {
     i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "other";
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${isUrgent ? " urgent" : ""}`}>
       {/* ── Header ── */}
       <header className="app-header">
         <span className="app-logo">BlitzQuiz</span>
