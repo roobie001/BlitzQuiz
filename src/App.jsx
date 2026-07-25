@@ -187,6 +187,10 @@ export default function App() {
       if (finalPoints + remainingTime >= 50) {
         setTimeout(() => fireConfetti(), 300);
       }
+      if (finalPoints + remainingTime >= 100) {
+        setTimeout(() => fireConfetti(), 200);
+        setTimeout(() => fireConfetti(), 600);
+      }
       sounds.playEnd();
       return "finished";
     });

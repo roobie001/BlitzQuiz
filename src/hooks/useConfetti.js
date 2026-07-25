@@ -1,3 +1,5 @@
+import confetti from "canvas-confetti";
+
 const THEME_COLORS = ["#00e676", "#ffffff", "#7c3aed", "#ff9100"];
 const STREAK_COLORS = ["#ff9100", "#ff1744", "#ffffff"];
 
