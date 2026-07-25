@@ -80,14 +80,12 @@ export function useQuestionGenerator(topic) {
     // Check cache with expiry — if within 5 minutes reuse, otherwise refetch
     const cached = cacheRef.current[topic];
     if (cached && Date.now() - cached.timestamp < FIVE_MINUTES) {
-      console.log("💾 Cache hit for topic:", topic);
       setQuestions(cached.questions);
       return;
     }
 
     // Cache expired or missing — reset topicRef so hook can refetch
     if (cached && Date.now() - cached.timestamp >= FIVE_MINUTES) {
-      console.log("⏰ Cache expired for topic:", topic, "— refetching");
       topicRef.current = null;
       delete cacheRef.current[topic];
     }
