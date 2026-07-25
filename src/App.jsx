@@ -12,6 +12,7 @@ import { StreakBadge } from "./components/StreakBadge";
 import { ShareButton } from "./components/ShareButton";
 import { useSounds } from "./hooks/useSounds";
 import { useConfetti } from "./hooks/useConfetti";
+import { DifficultyBadge } from "./components/DifficultyBadge";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
