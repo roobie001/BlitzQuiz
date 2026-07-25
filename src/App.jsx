@@ -409,6 +409,11 @@ export default function App() {
                     Set <code>VITE_CONTRACT_ADDRESS</code> to enable submission.
                   </p>
                 )}
+                <ShareButton
+                  score={finalScore}
+                  correctAnswers={correctAnswers}
+                  bestStreak={bestStreak}
+                />
               </div>
             </div>
           )}
