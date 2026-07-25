@@ -282,6 +282,17 @@ export default function App() {
     return () => window.clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setShowModal(false);
+        setShowStats(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   function startGame() {
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
