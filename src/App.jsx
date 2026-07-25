@@ -11,6 +11,7 @@ import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 import { StreakBadge } from "./components/StreakBadge";
 import { ShareButton } from "./components/ShareButton";
 import { useSounds } from "./hooks/useSounds";
+import { useConfetti } from "./hooks/useConfetti";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -19,6 +20,7 @@ const POINTS_MAP = { easy: 10, medium: 15, hard: 20 };
 
 //
 const sounds = useSounds(soundEnabled);
+const { fireConfetti, fireStreakConfetti } = useConfetti();
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
