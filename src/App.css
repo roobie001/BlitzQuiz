@@ -1261,3 +1261,33 @@ code {
     opacity: 1;
   }
 }
+
+.stats-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stats-modal-item {
+  background: var(--surface2);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.stats-modal-item span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.stats-modal-item strong {
+  font-family: "Syne", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  display: block;
+}
