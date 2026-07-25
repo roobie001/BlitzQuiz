@@ -1016,3 +1016,13 @@ code {
     background-color: #1a0707;
   }
 }
+
+.hurry-text {
+  color: var(--red);
+  font-family: "Syne", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-top: 6px;
+  animation: pulse 0.5s ease-in-out infinite alternate;
+  text-align: center;
+}
