@@ -1,8 +1,17 @@
+import { useState } from "react";
+
 export function WelcomeModal({ onClose }) {
+  const [dontShow, setDontShow] = useState(false);
+
+  function handleClose() {
+    if (dontShow) localStorage.setItem("blitzquiz-seen", "true");
+    onClose();
+  }
+
   return (
     <div className="modal-backdrop">
       <div className="modal">
-        <button className="modal-close" onClick={onClose}>
+        <button className="modal-close" onClick={handleClose}>
           ✕
         </button>
         <h2>Welcome to BlitzQuiz! 🎮</h2>
@@ -29,7 +38,15 @@ export function WelcomeModal({ onClose }) {
             </div>
           </div>
         </div>
-        <button className="primary-button" onClick={onClose}>
+        <label className="modal-checkbox">
+          <input
+            type="checkbox"
+            checked={dontShow}
+            onChange={(e) => setDontShow(e.target.checked)}
+          />
+          Don't show again
+        </label>
+        <button className="primary-button" onClick={handleClose}>
           Let's Play! 🚀
         </button>
       </div>
