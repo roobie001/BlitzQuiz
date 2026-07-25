@@ -1003,3 +1003,16 @@ code {
   color: var(--text-dim);
   margin-bottom: 16px;
 }
+
+.app-shell.urgent {
+  animation: urgentPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes urgentPulse {
+  from {
+    background-color: #07071a;
+  }
+  to {
+    background-color: #1a0707;
+  }
+}
