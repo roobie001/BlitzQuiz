@@ -329,6 +329,13 @@ export default function App() {
               ? "Tap to connect"
               : "No wallet"}
         </div>
+        <button
+          className="mute-btn"
+          onClick={() => setSoundEnabled((s) => !s)}
+          title={soundEnabled ? "Mute" : "Unmute"}
+        >
+          {soundEnabled ? "🔊" : "🔇"}
+        </button>
       </header>
 
       {/* ── Game State: idle or finished ── */}
