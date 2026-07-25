@@ -1213,3 +1213,20 @@ code {
   color: var(--text-dim);
   margin: 0;
 }
+
+.modal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.modal-checkbox input {
+  accent-color: var(--green);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
