@@ -278,6 +278,7 @@ export default function App() {
         const newStreak = streak + 1;
         setStreak(newStreak);
         setBestStreak((best) => Math.max(best, newStreak));
+        sounds.playCorrect();
       } else {
         setStreak(0);
       }
