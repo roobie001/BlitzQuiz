@@ -18,6 +18,7 @@ const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
 const ROUND_DISTRIBUTION = { easy: 4, medium: 4, hard: 2 };
 const POINTS_MAP = { easy: 10, medium: 15, hard: 20 };
+const isUrgent = timeLeft <= 10 && gameState === "playing";
 
 //
 const sounds = useSounds(soundEnabled);
