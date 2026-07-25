@@ -184,6 +184,9 @@ export default function App() {
     setGameState((s) => {
       if (s !== "playing") return s;
       setFinalScore(finalPoints + remainingTime);
+      if (finalPoints + remainingTime >= 50) {
+        setTimeout(() => fireConfetti(), 300);
+      }
       sounds.playEnd();
       return "finished";
     });
