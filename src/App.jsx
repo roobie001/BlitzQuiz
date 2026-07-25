@@ -259,6 +259,7 @@ export default function App() {
     //
     setStreak(0);
     setBestStreak(0);
+    sounds.playStart();
   }
 
   function handleAnswer(selectedAnswer, optionIndex) {
