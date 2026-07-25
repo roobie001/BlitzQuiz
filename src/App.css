@@ -1052,3 +1052,19 @@ code {
   color: var(--red);
   transition: color 300ms;
 }
+
+.timer-number.flash {
+  animation: countFlash 400ms ease;
+}
+
+@keyframes countFlash {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

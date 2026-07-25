@@ -97,7 +97,9 @@ function TimerRing({ timeLeft, total = GAME_DURATION }) {
             strokeDashoffset={offset}
           />
         </svg>
-        <div className={`timer-number ${color}`}>{timeLeft}</div>
+        <div className={`timer-number ${color}${countFlash ? " flash" : ""}`}>
+          {timeLeft}
+        </div>
       </div>
       {isUrgent && <div className="hurry-text">⚡ Hurry up!</div>}
     </div>
@@ -155,6 +157,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(
     () => localStorage.getItem("blitzquiz-sound") !== "false",
   );
+  const [countFlash, setCountFlash] = useState(false);
 
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
@@ -256,6 +259,13 @@ export default function App() {
   useEffect(() => {
     streakRef.current = streak;
   }, [streak]);
+
+  useEffect(() => {
+    if (timeLeft <= 3 && timeLeft > 0 && gameState === "playing") {
+      setCountFlash(true);
+      setTimeout(() => setCountFlash(false), 400);
+    }
+  }, [timeLeft]);
 
   function startGame() {
     const pool =
