@@ -48,6 +48,7 @@ function pickRandom(items, count) {
   return shuffleArray(items).slice(0, Math.min(count, items.length));
 }
 
+// Builds a balanced set of questions from the pool
 function buildRoundQuestions(pool) {
   const valid = pool.filter((q) =>
     ["easy", "medium", "hard"].includes(q.difficulty),
@@ -189,6 +190,7 @@ export default function App() {
     timeLeftRef.current = timeLeft;
   }, [correctAnswers, timeLeft, totalPoints]);
 
+  // Ends the game and calculates final score
   function endGame(
     remainingTime = timeLeftRef.current,
     finalPoints = totalPointsRef.current,
@@ -314,6 +316,7 @@ export default function App() {
     sounds.playStart();
   }
 
+  // Handles player answer selection with flash feedback
   function handleAnswer(selectedAnswer, optionIndex) {
     if (gameState !== "playing" || !currentQuestion) return;
     const isCorrect = selectedAnswer === currentQuestion.answer;
