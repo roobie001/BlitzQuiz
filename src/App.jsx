@@ -20,11 +20,6 @@ const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
 const ROUND_DISTRIBUTION = { easy: 4, medium: 4, hard: 2 };
 const POINTS_MAP = { easy: 10, medium: 15, hard: 20 };
-const isUrgent = timeLeft <= 10 && gameState === "playing";
-
-//
-const sounds = useSounds(soundEnabled);
-const { fireConfetti, fireStreakConfetti } = useConfetti();
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
@@ -80,7 +75,7 @@ function shortenAddress(addr) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function TimerRing({ timeLeft, total = GAME_DURATION }) {
+function TimerRing({ timeLeft, total = GAME_DURATION, isUrgent, countFlash }) {
   const r = 38;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - timeLeft / total);
@@ -142,7 +137,7 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [finalScore, setFinalScore] = useState(0);
   const [hasSubmittedRound, setHasSubmittedRound] = useState(false);
-  const [flashAnswer, setFlashAnswer] = useState(null); // {index, correct}
+  const [flashAnswer, setFlashAnswer] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [playerStats, setPlayerStats] = useState({
     bestScore: 0,
@@ -152,8 +147,6 @@ export default function App() {
   const [boardError, setBoardError] = useState("");
   const [refreshTick, setRefreshTick] = useState(0);
   const [boardOpen, setBoardOpen] = useState(false);
-
-  // new state for new feature
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showToast, setShowToast] = useState(false);
@@ -166,11 +159,19 @@ export default function App() {
   );
   const [showStats, setShowStats] = useState(false);
 
+  // hooks that depend on state — must be inside component
+  const sounds = useSounds(soundEnabled);
+  const { fireConfetti, fireStreakConfetti } = useConfetti();
+
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
   const timeLeftRef = useRef(timeLeft);
+  const streakRef = useRef(streak);
 
   const currentQuestion = gameQuestions[currentQuestionIndex];
+
+  // isUrgent must be inside component to access state
+  const isUrgent = timeLeft <= 10 && gameState === "playing";
 
   const canSubmitScore =
     Boolean(account) &&
@@ -188,7 +189,8 @@ export default function App() {
     correctAnswersRef.current = correctAnswers;
     totalPointsRef.current = totalPoints;
     timeLeftRef.current = timeLeft;
-  }, [correctAnswers, timeLeft, totalPoints]);
+    streakRef.current = streak;
+  }, [correctAnswers, timeLeft, totalPoints, streak]);
 
   // Ends the game and calculates final score
   function endGame(
@@ -197,18 +199,17 @@ export default function App() {
   ) {
     setGameState((s) => {
       if (s !== "playing") return s;
-      setFinalScore(finalPoints + remainingTime);
-      if (finalPoints + remainingTime >= 50) {
-        setTimeout(() => fireConfetti(), 300);
-      }
-      if (finalPoints + remainingTime >= 100) {
+      const score = finalPoints + remainingTime;
+      setFinalScore(score);
+      if (score >= 100) {
         setTimeout(() => fireConfetti(), 200);
         setTimeout(() => fireConfetti(), 600);
+      } else if (score >= 50) {
+        setTimeout(() => fireConfetti(), 300);
       }
       sounds.playEnd();
       return "finished";
     });
-
     setBoardOpen(true);
   }
 
@@ -263,13 +264,6 @@ export default function App() {
     };
   }, [account, publicClient, refreshTick]);
 
-  //
-  const streakRef = useRef(streak);
-
-  useEffect(() => {
-    streakRef.current = streak;
-  }, [streak]);
-
   useEffect(() => {
     if (timeLeft <= 3 && timeLeft > 0 && gameState === "playing") {
       setCountFlash(true);
@@ -307,12 +301,10 @@ export default function App() {
     setFinalScore(0);
     setHasSubmittedRound(false);
     setFlashAnswer(null);
-    setGameState("playing");
-
-    //
     setStreak(0);
     setBestStreak(0);
     setCountFlash(false);
+    setGameState("playing");
     sounds.playStart();
   }
 
@@ -325,26 +317,31 @@ export default function App() {
     const nextIndex = currentQuestionIndex + 1;
 
     setFlashAnswer({ index: optionIndex, correct: isCorrect });
+
     setTimeout(() => {
       setFlashAnswer(null);
       setAnsweredQuestions((c) => c + 1);
+
       if (isCorrect) {
         setCorrectAnswers((c) => c + 1);
         setTotalPoints((p) => p + questionPoints);
-        const newStreak = streak + 1;
-        setStreak(newStreak);
-        if (newStreak >= 3) sounds.playStreak();
-        setBestStreak((best) => Math.max(best, newStreak));
+        setStreak((prev) => {
+          const newStreak = prev + 1;
+          setBestStreak((best) => Math.max(best, newStreak));
+          if (newStreak >= 3) sounds.playStreak();
+          if (newStreak === 5) fireStreakConfetti();
+          return newStreak;
+        });
         sounds.playCorrect();
       } else {
         setStreak(0);
         sounds.playWrong();
       }
+
       if (nextIndex >= gameQuestions.length) {
         endGame(timeLeft, nextPoints);
         return;
       }
-      if (newStreak === 5) fireStreakConfetti();
       setCurrentQuestionIndex(nextIndex);
     }, 300);
   }
@@ -363,42 +360,59 @@ export default function App() {
     }
   }
 
-  //
   function showToastMessage() {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   }
 
-  function toggleSound() {
-    setSoundEnabled((s) => {
-      localStorage.setItem("blitzquiz-sound", String(!s));
-      return !s;
-    });
-  }
-
   const rankClass = (i) =>
     i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "other";
 
-  {
-    showModal && (
-      <WelcomeModal
-        onClose={() => {
-          setShowModal(false);
-          localStorage.setItem("blitzquiz-seen", "true");
-        }}
-      />
-    );
-  }
-
   return (
     <div className={`app-shell${isUrgent ? " urgent" : ""}`}>
+      {/* ── Modals ── */}
+      {showModal && (
+        <WelcomeModal
+          onClose={() => {
+            setShowModal(false);
+            localStorage.setItem("blitzquiz-seen", "true");
+          }}
+        />
+      )}
+      {showStats && (
+        <StatsModal
+          stats={playerStats}
+          bestStreak={bestStreak}
+          onClose={() => setShowStats(false)}
+        />
+      )}
+
       {/* ── Header ── */}
       <header className="app-header">
         <span className="app-logo">BlitzQuiz</span>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button
+            className="help-btn"
+            onClick={() => setShowModal(true)}
+            title="How to play"
+          >
+            ?
+          </button>
+          <button
+            className="help-btn"
+            onClick={() => setShowStats(true)}
+            title="Your stats"
+          >
+            📊
+          </button>
+          <button
             className="mute-btn"
-            onClick={() => setSoundEnabled((s) => !s)}
+            onClick={() =>
+              setSoundEnabled((s) => {
+                localStorage.setItem("blitzquiz-sound", String(!s));
+                return !s;
+              })
+            }
           >
             {soundEnabled ? "🔊" : "🔇"}
           </button>
@@ -414,20 +428,6 @@ export default function App() {
                 : "No wallet"}
           </div>
         </div>
-        <button
-          className="help-btn"
-          onClick={() => setShowModal(true)}
-          title="How to play"
-        >
-          ?
-        </button>
-        <button
-          className="help-btn"
-          onClick={() => setShowStats(true)}
-          title="Your stats"
-        >
-          📊
-        </button>
       </header>
 
       {/* ── Game State: idle or finished ── */}
@@ -532,6 +532,7 @@ export default function App() {
                   score={finalScore}
                   correctAnswers={correctAnswers}
                   bestStreak={bestStreak}
+                  onCopied={showToastMessage}
                 />
               </div>
             </div>
@@ -542,7 +543,11 @@ export default function App() {
       {/* ── Game State: playing ── */}
       {gameState === "playing" && (
         <>
-          <TimerRing timeLeft={timeLeft} />
+          <TimerRing
+            timeLeft={timeLeft}
+            isUrgent={isUrgent}
+            countFlash={countFlash}
+          />
           <div className="score-mini">
             Base <strong>{totalPoints}</strong> &nbsp;·&nbsp; Potential{" "}
             <strong>{liveScore}</strong>
@@ -561,9 +566,7 @@ export default function App() {
                 </span>
                 <DifficultyBadge difficulty={currentQuestion.difficulty} />
               </div>
-
               <StreakBadge key={streak} streak={streak} />
-
               <div className="q-text">{currentQuestion.question}</div>
               <div className="answer-grid">
                 {currentQuestion.options.map((option, i) => {
@@ -680,15 +683,11 @@ export default function App() {
         </div>
         <div className={`leaderboard-body ${boardOpen ? "open" : ""}`}>
           {loadingBoard && (
-            <p
-              style={{
-                color: "var(--text-dim)",
-                fontSize: "0.85rem",
-                marginTop: 12,
-              }}
-            >
-              Loading…
-            </p>
+            <div className="leaderboard-skeleton">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="skeleton-row" />
+              ))}
+            </div>
           )}
           {boardError && (
             <div className="leaderboard-error">
@@ -730,23 +729,10 @@ export default function App() {
             ))}
           </div>
         </div>
-
-        {loadingBoard && (
-          <div className="leaderboard-skeleton">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="skeleton-row" />
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* ── Toast ── */}
       {showToast && <div className="toast">✅ Score copied to clipboard!</div>}
-      {showStats && (
-        <StatsModal
-          stats={playerStats}
-          bestStreak={bestStreak}
-          onClose={() => setShowStats(false)}
-        />
-      )}
     </div>
   );
 }
