@@ -142,6 +142,7 @@ export default function App() {
   // new state for new feature
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
+  const [showToast, setShowToast] = useState(false);
 
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
