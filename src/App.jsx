@@ -99,6 +99,7 @@ function TimerRing({ timeLeft, total = GAME_DURATION }) {
         </svg>
         <div className={`timer-number ${color}`}>{timeLeft}</div>
       </div>
+      {isUrgent && <div className="hurry-text">⚡ Hurry up!</div>}
     </div>
   );
 }
