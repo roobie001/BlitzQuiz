@@ -9,6 +9,7 @@ import {
 import { useMiniPay } from "./useMiniPay";
 import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 import { StreakBadge } from "./components/StreakBadge";
+import { ShareButton } from "./components/ShareButton";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
