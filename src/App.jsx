@@ -318,24 +318,25 @@ export default function App() {
       {/* ── Header ── */}
       <header className="app-header">
         <span className="app-logo">BlitzQuiz</span>
-        <div
-          className="wallet-chip"
-          onClick={account ? undefined : connectWallet}
-        >
-          <span className={`wallet-dot ${account ? "connected" : ""}`} />
-          {account
-            ? shortenAddress(account)
-            : detectedAccount
-              ? "Tap to connect"
-              : "No wallet"}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            className="mute-btn"
+            onClick={() => setSoundEnabled((s) => !s)}
+          >
+            {soundEnabled ? "🔊" : "🔇"}
+          </button>
+          <div
+            className="wallet-chip"
+            onClick={account ? undefined : connectWallet}
+          >
+            <span className={`wallet-dot ${account ? "connected" : ""}`} />
+            {account
+              ? shortenAddress(account)
+              : detectedAccount
+                ? "Tap to connect"
+                : "No wallet"}
+          </div>
         </div>
-        <button
-          className="mute-btn"
-          onClick={() => setSoundEnabled((s) => !s)}
-          title={soundEnabled ? "Mute" : "Unmute"}
-        >
-          {soundEnabled ? "🔊" : "🔇"}
-        </button>
       </header>
 
       {/* ── Game State: idle or finished ── */}
