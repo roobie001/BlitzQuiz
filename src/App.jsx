@@ -294,6 +294,12 @@ export default function App() {
     }
   }
 
+  //
+   export default function showToastMessage() {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
+  }
+
   const rankClass = (i) =>
     i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "other";
 

@@ -27,7 +27,12 @@ export function ShareButton({ score, correctAnswers, bestStreak }) {
   }
 
   return (
-    <button className="share-btn" onClick={handleShare}>
+    <button
+      className="share-btn"
+      onClick={handleShare}
+      onCopy={setShowToast}
+      onCopied={showToastMessage}
+    >
       {copied ? "✅ Copied!" : "📤 Share Score"}
     </button>
   );
