@@ -610,7 +610,12 @@ export default function App() {
           className="leaderboard-toggle"
           onClick={() => setBoardOpen((o) => !o)}
         >
-          <div className="leaderboard-toggle-title">🏆 Top Scores</div>
+          <div className="leaderboard-toggle-title">
+            🏆 Top Scores
+            {leaderboard.length > 0 && (
+              <span className="leaderboard-count">{leaderboard.length}</span>
+            )}
+          </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <button
               className="leaderboard-refresh"
