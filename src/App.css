@@ -976,3 +976,9 @@ code {
   border: 1px solid rgba(255, 145, 0, 0.4);
   color: var(--orange);
 }
+
+.difficulty-badge.hard {
+  background: rgba(255, 23, 68, 0.15);
+  border: 1px solid rgba(255, 23, 68, 0.4);
+  color: var(--red);
+}
