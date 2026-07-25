@@ -659,7 +659,7 @@ export default function App() {
           <div className="leaderboard-list">
             {leaderboard.map((entry, i) => (
               <div
-                className={`leaderboard-row ${rankClass(i)}`}
+                className={`leaderboard-row ${rankClass(i)}${entry.address.toLowerCase() === account?.toLowerCase() ? " current-user" : ""}`}
                 key={entry.address}
               >
                 <div style={{ display: "flex", alignItems: "center" }}>
