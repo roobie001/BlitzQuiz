@@ -180,6 +180,7 @@ export default function App() {
     setGameState((s) => {
       if (s !== "playing") return s;
       setFinalScore(finalPoints + remainingTime);
+      sounds.playEnd();
       return "finished";
     });
   }
