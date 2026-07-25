@@ -1047,3 +1047,8 @@ code {
 .urgent .answer-grid .answer-button {
   border-color: rgba(255, 23, 68, 0.2);
 }
+
+.urgent .score-mini {
+  color: var(--red);
+  transition: color 300ms;
+}
