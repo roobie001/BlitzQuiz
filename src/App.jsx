@@ -267,6 +267,13 @@ export default function App() {
     }
   }, [timeLeft]);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setRefreshTick((v) => v + 1);
+    }, 30000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   function startGame() {
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
