@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 function generateShareText(score, correctAnswers, bestStreak) {
   return `🎮 BlitzQuiz Score: ${score}
 ✅ ${correctAnswers} correct answers
@@ -7,18 +9,26 @@ Play here → https://blitz-quiz-pink.vercel.app/`;
 }
 
 export function ShareButton({ score, correctAnswers, bestStreak }) {
-  function handleShare() {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
     const text = generateShareText(score, correctAnswers, bestStreak);
     if (navigator.share) {
-      navigator.share({ title: "BlitzQuiz", text });
+      try {
+        await navigator.share({ title: "BlitzQuiz", text });
+      } catch {
+        /* user cancelled */
+      }
     } else {
-      navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   }
 
   return (
     <button className="share-btn" onClick={handleShare}>
-      📤 Share Score
+      {copied ? "✅ Copied!" : "📤 Share Score"}
     </button>
   );
 }
