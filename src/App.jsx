@@ -279,6 +279,7 @@ export default function App() {
         setTotalPoints((p) => p + questionPoints);
         const newStreak = streak + 1;
         setStreak(newStreak);
+        if (newStreak >= 3) sounds.playStreak();
         setBestStreak((best) => Math.max(best, newStreak));
         sounds.playCorrect();
       } else {
