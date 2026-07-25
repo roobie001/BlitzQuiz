@@ -604,6 +604,7 @@ export default function App() {
           </div>
         </div>
       </div>
+      {showToast && <div className="toast">✅ Score copied to clipboard!</div>}
     </div>
   );
 }
