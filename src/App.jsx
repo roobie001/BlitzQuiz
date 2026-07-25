@@ -674,6 +674,14 @@ export default function App() {
             ))}
           </div>
         </div>
+
+        {loadingBoard && (
+          <div className="leaderboard-skeleton">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="skeleton-row" />
+            ))}
+          </div>
+        )}
       </div>
       {showToast && <div className="toast">✅ Score copied to clipboard!</div>}
     </div>
