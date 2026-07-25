@@ -3,7 +3,12 @@ export function StatsModal({ stats, bestStreak, onClose }) {
     stats.totalGames > 0 ? Math.round(stats.bestScore / stats.totalGames) : 0;
 
   return (
-    <div className="modal-backdrop">
+    <div
+      className="modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="modal">
         <button className="modal-close" onClick={onClose}>
           ✕

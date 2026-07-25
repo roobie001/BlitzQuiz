@@ -9,7 +9,12 @@ export function WelcomeModal({ onClose }) {
   }
 
   return (
-    <div className="modal-backdrop">
+    <div
+      className="modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="modal">
         <button className="modal-close" onClick={handleClose}>
           ✕
