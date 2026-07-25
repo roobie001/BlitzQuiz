@@ -27,6 +27,12 @@ export function StatsModal({ stats, bestStreak, onClose }) {
             <strong>{avgScore}</strong>
           </div>
         </div>
+        {stats.bestScore >= 100 && (
+          <div className="rank-badge">🏆 Elite Player</div>
+        )}
+        {stats.bestScore >= 50 && stats.bestScore < 100 && (
+          <div className="rank-badge">⭐ Rising Star</div>
+        )}
         <button className="primary-button" onClick={onClose}>
           Close
         </button>
