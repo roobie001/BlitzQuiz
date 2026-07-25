@@ -15,10 +15,35 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
+# BlitzQuiz ⚡
+
+AI-powered 60-second quiz game on Celo blockchain.
+
 ## Features
 
-- ⚡ 60-second timed quiz game
-- 🧠 AI-generated questions by topic (Groq Llama 3.1)
-- 🔥 Live streak counter with fire animations
+- 🧠 AI-generated questions via Groq (Llama 3.1)
+- 🎯 6 topic categories
+- 🔥 Live streak counter
+- ⏱️ 60-second countdown timer
 - ⛓️ Onchain score submission via MiniPay
 - 🏆 Global leaderboard on Celo mainnet
+- 🎊 Confetti celebrations
+- 🔊 Sound effects
+- 📊 Player stats modal
+- 👋 Onboarding modal for new players
+
+## Stack
+
+- React + Vite
+- Solidity (Celo mainnet)
+- Groq AI (Llama 3.1)
+- MiniPay wallet
+- Viem
+
+## Live Demo
+
+https://blitz-quiz-pink.vercel.app/
+
+## Built for
+
+Celo Proof of Ship Season
