@@ -13,6 +13,7 @@ import { ShareButton } from "./components/ShareButton";
 import { useSounds } from "./hooks/useSounds";
 import { useConfetti } from "./hooks/useConfetti";
 import { DifficultyBadge } from "./components/DifficultyBadge";
+import { WelcomeModal } from "./components/WelcomeModal";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -158,6 +159,9 @@ export default function App() {
     () => localStorage.getItem("blitzquiz-sound") !== "false",
   );
   const [countFlash, setCountFlash] = useState(false);
+  const [showModal, setShowModal] = useState(
+    () => localStorage.getItem("blitzquiz-seen") !== "true",
+  );
 
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
