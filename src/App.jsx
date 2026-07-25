@@ -10,11 +10,15 @@ import { useMiniPay } from "./useMiniPay";
 import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 import { StreakBadge } from "./components/StreakBadge";
 import { ShareButton } from "./components/ShareButton";
+import { useSounds } from "./hooks/useSounds";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
 const ROUND_DISTRIBUTION = { easy: 4, medium: 4, hard: 2 };
 const POINTS_MAP = { easy: 10, medium: 15, hard: 20 };
+
+//
+const sounds = useSounds(soundEnabled);
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
@@ -143,6 +147,7 @@ export default function App() {
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showToast, setShowToast] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
@@ -295,7 +300,7 @@ export default function App() {
   }
 
   //
-   export default function showToastMessage() {
+  function showToastMessage() {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   }
