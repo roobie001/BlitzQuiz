@@ -307,6 +307,7 @@ export default function App() {
       await submitScore(finalScore);
       setHasSubmittedRound(true);
       setRefreshTick((v) => v + 1);
+      fireConfetti();
     } catch {
       /* surfaced by hook */
     }
