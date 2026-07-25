@@ -909,3 +909,7 @@ code {
   border-color: var(--green);
   transform: translateY(-1px);
 }
+
+.share-btn:active {
+  transform: scale(0.97);
+}
