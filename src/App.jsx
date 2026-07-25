@@ -407,6 +407,13 @@ export default function App() {
         >
           ?
         </button>
+        <button
+          className="help-btn"
+          onClick={() => setShowStats(true)}
+          title="Your stats"
+        >
+          📊
+        </button>
       </header>
 
       {/* ── Game State: idle or finished ── */}
