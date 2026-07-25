@@ -970,3 +970,9 @@ code {
   border: 1px solid rgba(0, 230, 118, 0.4);
   color: var(--green);
 }
+
+.difficulty-badge.medium {
+  background: rgba(255, 145, 0, 0.15);
+  border: 1px solid rgba(255, 145, 0, 0.4);
+  color: var(--orange);
+}
