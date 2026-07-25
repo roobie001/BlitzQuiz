@@ -297,6 +297,7 @@ export default function App() {
         endGame(timeLeft, nextPoints);
         return;
       }
+      if (newStreak === 5) fireStreakConfetti();
       setCurrentQuestionIndex(nextIndex);
     }, 300);
   }
