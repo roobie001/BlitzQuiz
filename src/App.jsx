@@ -200,6 +200,8 @@ export default function App() {
       sounds.playEnd();
       return "finished";
     });
+
+    setBoardOpen(true);
   }
 
   useEffect(() => {
