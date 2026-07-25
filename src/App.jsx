@@ -284,6 +284,7 @@ export default function App() {
     //
     setStreak(0);
     setBestStreak(0);
+    setCountFlash(false);
     sounds.playStart();
   }
 
