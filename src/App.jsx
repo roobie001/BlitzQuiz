@@ -663,7 +663,9 @@ export default function App() {
                 key={entry.address}
               >
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  <span className={`rank ${rankClass(i)}`}>#{i + 1}</span>
+                  <span className={`rank ${rankClass(i)}`}>
+                    {i === 0 ? "👑" : `#${i + 1}`}
+                  </span>
                   <span className="leaderboard-address">
                     {shortenAddress(entry.address)}
                   </span>
