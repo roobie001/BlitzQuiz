@@ -997,3 +997,9 @@ code {
     transform: translateY(0);
   }
 }
+
+.result-difficulty-breakdown {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
