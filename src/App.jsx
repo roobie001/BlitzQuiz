@@ -312,6 +312,9 @@ export default function App() {
       setHasSubmittedRound(true);
       setRefreshTick((v) => v + 1);
       fireConfetti();
+      if (finalScore > playerStats.bestScore) {
+        setTimeout(() => fireConfetti(), 500);
+      }
     } catch {
       /* surfaced by hook */
     }
