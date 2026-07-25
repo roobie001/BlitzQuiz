@@ -644,15 +644,11 @@ export default function App() {
             </p>
           )}
           {!loadingBoard && !boardError && leaderboard.length === 0 && (
-            <p
-              style={{
-                color: "var(--text-dim)",
-                fontSize: "0.85rem",
-                marginTop: 12,
-              }}
-            >
-              No scores yet. Play and submit to claim the top spot!
-            </p>
+            <div className="leaderboard-empty">
+              <div className="leaderboard-empty-icon">🏆</div>
+              <p>No scores yet.</p>
+              <p>Play and submit to claim #1!</p>
+            </div>
           )}
           <div className="leaderboard-list">
             {leaderboard.map((entry, i) => (
