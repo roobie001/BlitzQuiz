@@ -1248,3 +1248,16 @@ code {
   border-color: rgba(255, 255, 255, 0.2);
   color: var(--text);
 }
+
+.modal-backdrop {
+  animation: fadeInBackdrop 200ms ease forwards;
+}
+
+@keyframes fadeInBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
