@@ -1068,3 +1068,31 @@ code {
     transform: scale(1);
   }
 }
+
+.leaderboard-skeleton {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.skeleton-row {
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--surface2) 25%,
+    rgba(255, 255, 255, 0.05) 50%,
+    var(--surface2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
