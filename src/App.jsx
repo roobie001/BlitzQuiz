@@ -281,6 +281,7 @@ export default function App() {
         sounds.playCorrect();
       } else {
         setStreak(0);
+        sounds.playWrong();
       }
       if (nextIndex >= gameQuestions.length) {
         endGame(timeLeft, nextPoints);
