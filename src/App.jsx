@@ -363,6 +363,17 @@ export default function App() {
   const rankClass = (i) =>
     i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "other";
 
+  {
+    showModal && (
+      <WelcomeModal
+        onClose={() => {
+          setShowModal(false);
+          localStorage.setItem("blitzquiz-seen", "true");
+        }}
+      />
+    );
+  }
+
   return (
     <div className={`app-shell${isUrgent ? " urgent" : ""}`}>
       {/* ── Header ── */}
