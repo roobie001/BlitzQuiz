@@ -886,3 +886,26 @@ code {
   color: #fff;
   margin-left: 4px;
 }
+
+.share-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid rgba(0, 230, 118, 0.3);
+  background: rgba(0, 230, 118, 0.08);
+  color: var(--green);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.93rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 150ms,
+    border-color 150ms,
+    transform 120ms;
+}
+
+.share-btn:hover {
+  background: rgba(0, 230, 118, 0.15);
+  border-color: var(--green);
+  transform: translateY(-1px);
+}
