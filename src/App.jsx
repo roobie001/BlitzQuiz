@@ -300,6 +300,8 @@ export default function App() {
   function startGame() {
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
+    const duration = getGameDuration(gameMode);
+    setTimeLeft(duration);
     setGameQuestions(buildRoundQuestions(pool));
     setCurrentQuestionIndex(0);
     setCorrectAnswers(0);
@@ -554,6 +556,7 @@ export default function App() {
         <>
           <TimerRing
             timeLeft={timeLeft}
+            total={getGameDuration(gameMode)}
             isUrgent={isUrgent}
             countFlash={countFlash}
           />
