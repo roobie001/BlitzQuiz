@@ -322,9 +322,12 @@ export default function App() {
   function handleAnswer(selectedAnswer, optionIndex) {
     if (gameState !== "playing" || !currentQuestion) return;
     const isCorrect = selectedAnswer === currentQuestion.answer;
-    const questionPoints = POINTS_MAP[currentQuestion.difficulty] ?? 10;
     const nextPoints = totalPoints + (isCorrect ? questionPoints : 0);
     const nextIndex = currentQuestionIndex + 1;
+    const multiplier = gameMode === "timeattack" ? 1.5 : 1;
+    const questionPoints = Math.round(
+      (POINTS_MAP[currentQuestion.difficulty] ?? 10) * multiplier,
+    );
 
     setFlashAnswer({ index: optionIndex, correct: isCorrect });
 
