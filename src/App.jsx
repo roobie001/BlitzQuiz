@@ -566,6 +566,7 @@ export default function App() {
                   score={finalScore}
                   correctAnswers={correctAnswers}
                   bestStreak={bestStreak}
+                  mode={gameMode}
                   onCopied={showToastMessage}
                 />
               </div>

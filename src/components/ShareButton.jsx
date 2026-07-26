@@ -1,7 +1,15 @@
 import { useState } from "react";
 
-function generateShareText(score, correctAnswers, bestStreak) {
-  return `🎮 BlitzQuiz Score: ${score}
+function generateShareText(score, correctAnswers, bestStreak, mode) {
+  const modeLabel =
+    mode === "timeattack"
+      ? "⚡ Time Attack"
+      : mode === "survival"
+        ? "❤️ Survival"
+        : mode === "practice"
+          ? "📚 Practice"
+          : "🕐 Classic";
+  return `🎮 BlitzQuiz ${modeLabel} Score: ${score}
 ✅ ${correctAnswers} correct answers
 🔥 Best streak: ${bestStreak}x
 ⛓️ Posted onchain on Celo!
