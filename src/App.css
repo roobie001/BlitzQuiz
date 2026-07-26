@@ -1408,3 +1408,16 @@ code {
     background-color: #1a0707;
   }
 }
+
+.mode-badge.survival {
+  animation: survivalPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes survivalPulse {
+  from {
+    box-shadow: none;
+  }
+  to {
+    box-shadow: 0 0 12px rgba(255, 23, 68, 0.4);
+  }
+}
