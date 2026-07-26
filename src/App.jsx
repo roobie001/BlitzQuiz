@@ -551,6 +551,9 @@ export default function App() {
                     : "Game over — no lives left"}
                 </div>
               )}
+              {gameMode === "survival" && lives > 0 && (
+                <div className="result-sub">+{lives * 20} lives bonus</div>
+              )}
               {bestStreak >= 2 && (
                 <div className="best-streak-result">
                   🔥 Best streak: <strong>{bestStreak}</strong>
