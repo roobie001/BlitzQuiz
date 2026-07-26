@@ -31,6 +31,10 @@ AI-powered 60-second quiz game on Celo blockchain.
 - 🔊 Sound effects
 - 📊 Player stats modal
 - 👋 Onboarding modal for new players
+- ⚡ Time Attack mode (30s, 1.5x multiplier)
+- ❤️ Survival mode (one wrong answer = game over)
+- 📚 Practice mode (no timer pressure)
+- ⏱️ Classic mode (60 seconds)
 
 ## Stack
 
