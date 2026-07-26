@@ -219,6 +219,9 @@ export default function App() {
       } else if (score >= 50) {
         setTimeout(() => fireConfetti(), 300);
       }
+      const livesBonus = gameMode === "survival" ? lives * 20 : 0;
+      const score = finalPoints + remainingTime + livesBonus;
+      setFinalScore(score);
       sounds.playEnd();
       return "finished";
     });
