@@ -158,6 +158,7 @@ export default function App() {
     () => localStorage.getItem("blitzquiz-seen") !== "true",
   );
   const [showStats, setShowStats] = useState(false);
+  const [gameMode, setGameMode] = useState("classic"); // classic | timeattack | survival | practice
 
   // hooks that depend on state — must be inside component
   const sounds = useSounds(soundEnabled);
