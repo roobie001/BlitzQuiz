@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-function generateShareText(score, correctAnswers, bestStreak, mode) {
+function generateShareText(score, correctAnswers, bestStreak, mode, lives) {
+  const livesInfo =
+    mode === "survival" ? `\n❤️ Survived with ${lives} lives` : "";
   const modeLabel =
     mode === "timeattack"
       ? "⚡ Time Attack"
