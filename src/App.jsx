@@ -319,6 +319,7 @@ export default function App() {
     setBestStreak(0);
     setCountFlash(false);
     setGameState("playing");
+    setLives(gameMode === "survival" ? 3 : 1);
     sounds.playStart();
   }
 
