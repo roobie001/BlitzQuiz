@@ -1372,3 +1372,19 @@ code {
   border: 1px solid rgba(255, 145, 0, 0.4);
   color: var(--orange);
 }
+
+.lives-display {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.heart {
+  font-size: 1.4rem;
+  transition: opacity 200ms;
+}
+.heart.dead {
+  opacity: 0.2;
+  filter: grayscale(1);
+}
