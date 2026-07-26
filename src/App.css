@@ -1394,3 +1394,17 @@ code {
   border: 1px solid rgba(255, 23, 68, 0.4);
   color: var(--red);
 }
+
+.app-shell.life-lost {
+  animation: lifeLostFlash 500ms ease;
+}
+
+@keyframes lifeLostFlash {
+  0%,
+  100% {
+    background-color: #07071a;
+  }
+  50% {
+    background-color: #1a0707;
+  }
+}

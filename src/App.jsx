@@ -161,6 +161,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(
     () => localStorage.getItem("blitzquiz-sound") !== "false",
   );
+  const [lifeLost, setLifeLost] = useState(false);
   const [countFlash, setCountFlash] = useState(false);
   const [showModal, setShowModal] = useState(
     () => localStorage.getItem("blitzquiz-seen") !== "true",
@@ -320,6 +321,8 @@ export default function App() {
     setCountFlash(false);
     setGameState("playing");
     setLives(gameMode === "survival" ? 3 : 1);
+    setLifeLost(true);
+    setTimeout(() => setLifeLost(false), 500);
     sounds.playStart();
   }
 
@@ -395,7 +398,9 @@ export default function App() {
     i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "other";
 
   return (
-    <div className={`app-shell${isUrgent ? " urgent" : ""}`}>
+    <div
+      className={`app-shell${isUrgent ? " urgent" : ""}${lifeLost ? " life-lost" : ""}`}
+    >
       {/* ── Modals ── */}
       {showModal && (
         <WelcomeModal
