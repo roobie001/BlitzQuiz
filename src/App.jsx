@@ -31,6 +31,12 @@ const TOPICS = [
   { id: "General Knowledge", emoji: "🎲" },
 ];
 
+function getGameDuration(mode) {
+  if (mode === "timeattack") return 30;
+  if (mode === "practice") return 999;
+  return 60;
+}
+
 function shuffleArray(items) {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
