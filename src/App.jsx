@@ -462,6 +462,11 @@ export default function App() {
           <GameModeSelector mode={gameMode} onSelect={setGameMode} />
           {/* Topic Selector */}
           <div className="card topic-section" style={{ marginBottom: 16 }}>
+            {gameMode === "survival" && (
+              <div className="mode-badge survival">
+                ❤️ Survival — {lives} {lives === 1 ? "life" : "lives"} left
+              </div>
+            )}
             <div className="topic-label">Choose a topic</div>
             <div className="topic-grid">
               {TOPICS.map((t) => (
