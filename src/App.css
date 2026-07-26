@@ -1302,3 +1302,56 @@ code {
   font-size: 0.88rem;
   margin-bottom: 16px;
 }
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: var(--radius-lg);
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    background 150ms,
+    transform 120ms;
+  text-align: center;
+}
+
+.mode-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.mode-btn.selected {
+  border-color: var(--green);
+  background: var(--green-dim);
+  box-shadow: 0 0 18px var(--green-glow);
+}
+
+.mode-emoji {
+  font-size: 1.4rem;
+}
+.mode-label {
+  font-family: "Syne", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.mode-desc {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.mode-selector {
+  margin-bottom: 16px;
+}
