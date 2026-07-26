@@ -582,7 +582,10 @@ export default function App() {
                 <span>
                   Q{currentQuestionIndex + 1} / {gameQuestions.length}
                 </span>
-                <DifficultyBadge difficulty={currentQuestion.difficulty} />
+                <DifficultyBadge
+                  difficulty={currentQuestion.difficulty}
+                  multiplier={gameMode === "timeattack" ? 1.5 : 1}
+                />
               </div>
               <StreakBadge key={streak} streak={streak} />
               <div className="q-text">{currentQuestion.question}</div>
