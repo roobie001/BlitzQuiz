@@ -299,6 +299,7 @@ export default function App() {
   }, []);
 
   function startGame() {
+    // gameMode is intentionally kept — player replays same mode
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
     const duration = getGameDuration(gameMode);
