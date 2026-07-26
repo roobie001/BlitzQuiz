@@ -323,6 +323,7 @@ export default function App() {
     setLives(gameMode === "survival" ? 3 : 1);
     setLifeLost(true);
     setTimeout(() => setLifeLost(false), 500);
+    setLifeLost(false);
     sounds.playStart();
   }
 
