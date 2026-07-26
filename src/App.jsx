@@ -493,7 +493,11 @@ export default function App() {
           {/* Result Card */}
           {gameState === "finished" && (
             <div className="card result-card" style={{ marginBottom: 16 }}>
-              <div className="result-label">Final Score</div>
+              <div className="result-label">
+                {gameMode === "timeattack"
+                  ? "⚡ Time Attack Score"
+                  : "Final Score"}
+              </div>
               <div className="result-score">{finalScore}</div>
               <div className="result-difficulty-breakdown">
                 <span>Easy 10pts · Medium 15pts · Hard 20pts</span>
