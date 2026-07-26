@@ -354,6 +354,14 @@ export default function App() {
       } else {
         setStreak(0);
         sounds.playWrong();
+        if (gameMode === "survival") {
+          const newLives = lives - 1;
+          setLives(newLives);
+          if (newLives <= 0) {
+            endGame(timeLeft, nextPoints);
+            return;
+          }
+        }
       }
 
       if (nextIndex >= gameQuestions.length) {
