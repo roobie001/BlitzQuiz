@@ -16,6 +16,7 @@ import { DifficultyBadge } from "./components/DifficultyBadge";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { StatsModal } from "./components/StatsModal";
 import { GameModeSelector } from "./components/GameModeSelector";
+import { LivesDisplay } from "./components/LivesDisplay";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -585,6 +586,7 @@ export default function App() {
             isUrgent={isUrgent}
             countFlash={countFlash}
           />
+          <LivesDisplay lives={lives} mode={gameMode} />
           {gameMode === "timeattack" && (
             <div className="mode-badge timeattack">⚡ Time Attack</div>
           )}
