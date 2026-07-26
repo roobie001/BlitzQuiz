@@ -15,6 +15,7 @@ import { useConfetti } from "./hooks/useConfetti";
 import { DifficultyBadge } from "./components/DifficultyBadge";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { StatsModal } from "./components/StatsModal";
+import { GameModeSelector } from "./components/GameModeSelector";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -434,6 +435,7 @@ export default function App() {
       {/* ── Game State: idle or finished ── */}
       {gameState !== "playing" && (
         <>
+          <GameModeSelector mode={gameMode} onSelect={setGameMode} />
           {/* Topic Selector */}
           <div className="card topic-section" style={{ marginBottom: 16 }}>
             <div className="topic-label">Choose a topic</div>
