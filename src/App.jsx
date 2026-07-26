@@ -500,6 +500,20 @@ export default function App() {
                   : "Final Score"}
               </div>
               <div className="result-score">{finalScore}</div>
+              {gameMode !== "classic" && (
+                <div
+                  className={`mode-badge ${gameMode}`}
+                  style={{ margin: "8px auto 12px" }}
+                >
+                  {gameMode === "timeattack"
+                    ? "⚡ Time Attack"
+                    : gameMode === "survival"
+                      ? "❤️ Survival"
+                      : gameMode === "practice"
+                        ? "📚 Practice"
+                        : ""}
+                </div>
+              )}
               <div className="result-difficulty-breakdown">
                 <span>Easy 10pts · Medium 15pts · Hard 20pts</span>
               </div>
