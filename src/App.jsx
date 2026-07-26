@@ -166,6 +166,7 @@ export default function App() {
   );
   const [showStats, setShowStats] = useState(false);
   const [gameMode, setGameMode] = useState("classic"); // classic | timeattack | survival | practice
+  const [lives, setLives] = useState(1);
 
   // hooks that depend on state — must be inside component
   const sounds = useSounds(soundEnabled);
