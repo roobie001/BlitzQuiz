@@ -1355,3 +1355,20 @@ code {
 .mode-selector {
   margin-bottom: 16px;
 }
+
+.mode-badge {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: "Syne", sans-serif;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin: 6px auto;
+  display: inline-block;
+}
+
+.mode-badge.timeattack {
+  background: rgba(255, 145, 0, 0.15);
+  border: 1px solid rgba(255, 145, 0, 0.4);
+  color: var(--orange);
+}

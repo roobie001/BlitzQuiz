@@ -560,6 +560,9 @@ export default function App() {
             isUrgent={isUrgent}
             countFlash={countFlash}
           />
+          {gameMode === "timeattack" && (
+            <div className="mode-badge timeattack">⚡ Time Attack</div>
+          )}
           <div className="score-mini">
             Base <strong>{totalPoints}</strong> &nbsp;·&nbsp; Potential{" "}
             <strong>{liveScore}</strong>
