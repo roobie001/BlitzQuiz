@@ -541,6 +541,13 @@ export default function App() {
                 <span>Easy 10pts · Medium 15pts · Hard 20pts</span>
               </div>
               <div className="result-sub">{correctAnswers} correct answers</div>
+              {gameMode === "survival" && (
+                <div className="result-sub">
+                  {lives > 0
+                    ? `Survived with ${lives} ${lives === 1 ? "life" : "lives"}!`
+                    : "Game over — no lives left"}
+                </div>
+              )}
               {bestStreak >= 2 && (
                 <div className="best-streak-result">
                   🔥 Best streak: <strong>{bestStreak}</strong>
