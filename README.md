@@ -35,6 +35,7 @@ AI-powered 60-second quiz game on Celo blockchain.
 - ❤️ Survival mode (one wrong answer = game over)
 - 📚 Practice mode (no timer pressure)
 - ⏱️ Classic mode (60 seconds)
+- survival mode
 
 ## Stack
 
