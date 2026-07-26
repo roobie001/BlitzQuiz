@@ -179,7 +179,8 @@ export default function App() {
   const currentQuestion = gameQuestions[currentQuestionIndex];
 
   // isUrgent must be inside component to access state
-  const isUrgent = timeLeft <= 10 && gameState === "playing";
+  const urgentThreshold = gameMode === "timeattack" ? 5 : 10;
+  const isUrgent = timeLeft <= urgentThreshold && gameState === "playing";
 
   const canSubmitScore =
     Boolean(account) &&
