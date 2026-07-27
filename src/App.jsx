@@ -645,6 +645,11 @@ export default function App() {
                   😅 So close! ({finalScore} vs {challengeScore} to beat)
                 </div>
               )}
+              {challengeScore && (
+                <div className="challenge-target">
+                  Target: <strong>{challengeScore}</strong>
+                </div>
+              )}
               <div className="result-actions">
                 <button
                   className="primary-button"

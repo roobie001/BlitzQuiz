@@ -1521,3 +1521,10 @@ code {
   margin-bottom: 12px;
   text-align: center;
 }
+
+.challenge-target {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #c4b5fd;
+  margin-top: 4px;
+}
