@@ -62,3 +62,21 @@ export function TwitterShareButton({ score, mode, topic }) {
     </button>
   );
 }
+
+export function TelegramShareButton({ score }) {
+  function handleTelegramShare() {
+    const text = encodeURIComponent(
+      `🎮 Just scored ${score} on BlitzQuiz!\n⛓️ Onchain on Celo\nhttps://blitz-quiz-pink.vercel.app/`,
+    );
+    window.open(
+      `https://t.me/share/url?url=https://blitz-quiz-pink.vercel.app/&text=${text}`,
+      "_blank",
+    );
+  }
+
+  return (
+    <button className="telegram-share-btn" onClick={handleTelegramShare}>
+      ✈️ Share on Telegram
+    </button>
+  );
+}
