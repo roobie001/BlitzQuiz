@@ -44,6 +44,8 @@ const displayLeaderboard = leaderboardTab === "weekly"
 const weeklyBest = weeklyLeaderboard.length > 0
   ? Math.max(...weeklyLeaderboard.map((h) => h.score))
   : 0;
+const weeklyGames = weeklyLeaderboard.length;
+
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
   { id: "Science", emoji: "🔬" },
@@ -928,6 +930,11 @@ export default function App() {
     <p>No games this week yet.</p>
     <p>Play to appear on the weekly board!</p>
   </div>
+)}
+{leaderboardTab === "weekly" && weeklyGames > 0 && (
+  <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 8 }}>
+    {weeklyGames} games played this week
+  </p>
 )}
           {boardError && (
             <div className="leaderboard-error">
