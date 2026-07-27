@@ -482,11 +482,9 @@ export default function App() {
           >
             ?
           </button>
-          <button
-            className="help-btn"
-            onClick={() => setShowStats(true)}
-            title="Your stats"
-          >
+          <button className="help-btn" onClick={() => setShowStats(true)} title="Your stats">
+  📊{history.length > 0 && <span className="header-badge">{history.length}</span>}
+</button>
             📊
           </button>
           <button
