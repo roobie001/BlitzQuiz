@@ -1621,3 +1621,33 @@ code {
   align-items: center;
   justify-content: center;
 }
+
+.leaderboard-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.lb-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 150ms,
+    border-color 150ms,
+    color 150ms;
+}
+
+.lb-tab.active {
+  background: var(--green-dim);
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 600;
+}
