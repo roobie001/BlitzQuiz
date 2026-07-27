@@ -1,7 +1,4 @@
-export function StatsModal({ stats, bestStreak, onClose }) {
-  const avgScore =
-    stats.totalGames > 0 ? Math.round(stats.bestScore / stats.totalGames) : 0;
-
+export function StatsModal({ stats, bestStreak, getBestByMode, onClose }) {
   return (
     <div
       className="modal-backdrop"
@@ -28,8 +25,16 @@ export function StatsModal({ stats, bestStreak, onClose }) {
             <strong>🔥 {bestStreak}x</strong>
           </div>
           <div className="stats-modal-item">
-            <span>Avg Score</span>
-            <strong>{avgScore}</strong>
+            <span>⚡ Time Attack</span>
+            <strong>{getBestByMode("timeattack") || "—"}</strong>
+          </div>
+          <div className="stats-modal-item">
+            <span>❤️ Survival</span>
+            <strong>{getBestByMode("survival") || "—"}</strong>
+          </div>
+          <div className="stats-modal-item">
+            <span>⏱️ Classic</span>
+            <strong>{getBestByMode("classic") || "—"}</strong>
           </div>
         </div>
         {stats.bestScore >= 100 && (

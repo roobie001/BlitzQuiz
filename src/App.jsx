@@ -466,6 +466,7 @@ export default function App() {
         <StatsModal
           stats={playerStats}
           bestStreak={bestStreak}
+          getBestByMode={getBestByMode}
           onClose={() => setShowStats(false)}
         />
       )}
