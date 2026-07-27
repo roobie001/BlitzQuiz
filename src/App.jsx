@@ -516,6 +516,14 @@ export default function App() {
               "Start Game"
             )}
           </button>
+          {gameMode !== "practice" && (
+            <TimerRing
+              timeLeft={timeLeft}
+              total={getGameDuration(gameMode)}
+              isUrgent={isUrgent}
+              countFlash={countFlash}
+            />
+          )}
 
           {/* Result Card */}
           {gameState === "finished" && (
