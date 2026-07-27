@@ -38,6 +38,12 @@ AI-powered 60-second quiz game on Celo blockchain.
 - survival mode
 - practice mode
 
+## Challenge a Friend
+
+- Share a challenge link with your score
+- Friend opens link and sees your score to beat
+- Auto-selects your topic and game mode
+
 ## Stack
 
 - React + Vite
