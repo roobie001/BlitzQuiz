@@ -38,7 +38,10 @@ const weeklyLeaderboard = history
   .filter((h) => new Date(h.date).getTime() >= weekStart)
   .sort((a, b) => b.score - a.score)
   .slice(0, 10);
-
+const displayLeaderboard = leaderboardTab === "weekly"
+  ? weeklyLeaderboard.map((h) => ({ address: "You", bestScore: h.score, totalGames: 1 }))
+  : leaderboard;
+  
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
   { id: "Science", emoji: "🔬" },
