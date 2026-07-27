@@ -41,7 +41,9 @@ const weeklyLeaderboard = history
 const displayLeaderboard = leaderboardTab === "weekly"
   ? weeklyLeaderboard.map((h) => ({ address: "You", bestScore: h.score, totalGames: 1 }))
   : leaderboard;
-
+const weeklyBest = weeklyLeaderboard.length > 0
+  ? Math.max(...weeklyLeaderboard.map((h) => h.score))
+  : 0;
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
   { id: "Science", emoji: "🔬" },
@@ -877,6 +879,10 @@ export default function App() {
 <div className="stats-modal-item">
   <span>Win Rate</span>
   <strong>{winRate}%</strong>
+</div>
+<div className="stats-modal-item">
+  <span>This Week</span>
+  <strong>{weeklyBest || "—"}</strong>
 </div>
        
       </div>
