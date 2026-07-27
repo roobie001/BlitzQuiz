@@ -212,6 +212,15 @@ export default function App() {
     streakRef.current = streak;
   }, [correctAnswers, timeLeft, totalPoints, streak]);
 
+  useEffect(() => {
+    if (challengeTopic) {
+      setSelectedTopic(challengeTopic);
+    }
+    if (challengeMode) {
+      setGameMode(challengeMode);
+    }
+  }, []);
+
   // Ends the game and calculates final score
   function endGame(
     remainingTime = timeLeftRef.current,
