@@ -33,6 +33,11 @@ const challengeTopic = urlParams.get("topic") || null;
 const { history, addGame, clearHistory } = useGameHistory();
 const isNewPersonalBest =
   history.length > 0 && finalScore > Math.max(...history.map((h) => h.score));
+const weekStart = getWeekStart();
+const weeklyLeaderboard = history
+  .filter((h) => new Date(h.date).getTime() >= weekStart)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 10);
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
