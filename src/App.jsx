@@ -22,6 +22,7 @@ import { ChallengeBanner } from "./components/ChallengeBanner";
 import { useGameHistory } from "./hooks/useGameHistory";
 import { GameHistory } from "./components/GameHistory";
 import { TwitterShareButton } from "./components/ShareButton";
+import { TelegramShareButton } from "./components/ShareButton";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -762,6 +763,7 @@ export default function App() {
   mode={gameMode}
   topic={selectedTopic}
 />
+<TelegramShareButton score={finalScore} />
               </div>
               
             </div>
