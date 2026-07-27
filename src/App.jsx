@@ -191,7 +191,8 @@ export default function App() {
     Boolean(CONTRACT_ADDRESS) &&
     isOnSupportedChain &&
     finalScore > 0 &&
-    !hasSubmittedRound;
+    !hasSubmittedRound &&
+    gameMode !== "practice";
 
   const liveScore = useMemo(
     () => totalPoints + timeLeft,
