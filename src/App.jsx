@@ -181,6 +181,7 @@ export default function App() {
   const [showStats, setShowStats] = useState(false);
   const [gameMode, setGameMode] = useState("classic"); // classic | timeattack | survival | practice
   const [lives, setLives] = useState(1);
+  const [leaderboardTab, setLeaderboardTab] = useState("all");
 
   // hooks that depend on state — must be inside component
   const sounds = useSounds(soundEnabled);
@@ -486,7 +487,7 @@ export default function App() {
   📊{history.length > 0 && <span className="header-badge">{history.length}</span>}
 </button>
             📊
-          </button>
+          </div>
           <button
             className="mute-btn"
             onClick={() =>
@@ -941,6 +942,16 @@ export default function App() {
             ))}
           </div>
         </div>
+        <div className="leaderboard-tabs">
+  <button
+    className={`lb-tab${leaderboardTab === "all" ? " active" : ""}`}
+    onClick={() => setLeaderboardTab("all")}
+  >All Time</button>
+  <button
+    className={`lb-tab${leaderboardTab === "weekly" ? " active" : ""}`}
+    onClick={() => setLeaderboardTab("weekly")}
+  >This Week</button>
+</div>
       </div>
       
 
