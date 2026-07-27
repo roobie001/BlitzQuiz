@@ -531,6 +531,21 @@ export default function App() {
               countFlash={countFlash}
             />
           )}
+          {gameMode === "practice" ? (
+            <p className="hint">Practice scores are not submitted onchain.</p>
+          ) : (
+            <button
+              className="primary-button"
+              onClick={handleSubmitScore}
+              disabled={!canSubmitScore || txStatus === "pending"}
+            >
+              {txStatus === "pending"
+                ? "Submitting…"
+                : hasSubmittedRound
+                  ? "✓ Submitted"
+                  : "Submit Score Onchain"}
+            </button>
+          )}
           {gameMode === "practice" && (
             <div className="mode-badge practice">
               📚 Practice Mode — No Time Pressure
