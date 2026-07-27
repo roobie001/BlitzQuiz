@@ -1497,3 +1497,27 @@ code {
   color: var(--text-dim);
   margin: 0;
 }
+
+.challenge-won {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.challenge-lost {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 145, 0, 0.1);
+  border: 1px solid rgba(255, 145, 0, 0.3);
+  color: var(--orange);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
+}

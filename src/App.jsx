@@ -623,9 +623,20 @@ export default function App() {
               {gameMode === "survival" && lives > 0 && (
                 <div className="result-sub">+{lives * 20} lives bonus</div>
               )}
+
               {bestStreak >= 2 && (
                 <div className="best-streak-result">
                   🔥 Best streak: <strong>{bestStreak}</strong>
+                </div>
+              )}
+              {challengeScore && finalScore > challengeScore && (
+                <div className="challenge-won">
+                  🏆 You beat the challenge! ({finalScore} vs {challengeScore})
+                </div>
+              )}
+              {challengeScore && finalScore <= challengeScore && (
+                <div className="challenge-lost">
+                  😅 So close! ({finalScore} vs {challengeScore} to beat)
                 </div>
               )}
               <div className="result-actions">
