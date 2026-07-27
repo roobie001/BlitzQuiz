@@ -151,6 +151,7 @@ export default function App() {
     bestScore: 0,
     totalGames: 0,
   });
+  const [showCorrect, setShowCorrect] = useState(null);
   const [loadingBoard, setLoadingBoard] = useState(false);
   const [boardError, setBoardError] = useState("");
   const [refreshTick, setRefreshTick] = useState(0);
@@ -342,6 +343,11 @@ export default function App() {
     );
 
     setFlashAnswer({ index: optionIndex, correct: isCorrect });
+    if (gameMode === "practice" && !isCorrect) {
+      // show which was correct for 1 second
+      setShowCorrect(currentQuestion.answer);
+      setTimeout(() => setShowCorrect(null), 1000);
+    }
 
     setTimeout(() => {
       setFlashAnswer(null);
