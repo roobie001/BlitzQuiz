@@ -47,3 +47,18 @@ export function ShareButton({ score, correctAnswers, bestStreak, onCopied }) {
     </button>
   );
 }
+
+export function TwitterShareButton({ score, mode, topic }) {
+  function handleTwitterShare() {
+    const text = encodeURIComponent(
+      `🎮 Just scored ${score} on BlitzQuiz (${mode} mode)!\n⛓️ Onchain on Celo\nPlay here → https://blitz-quiz-pink.vercel.app/`,
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+  }
+
+  return (
+    <button className="twitter-share-btn" onClick={handleTwitterShare}>
+      𝕏 Share on X
+    </button>
+  );
+}
