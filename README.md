@@ -37,6 +37,8 @@ AI-powered 60-second quiz game on Celo blockchain.
 - ⏱️ Classic mode (60 seconds)
 - survival mode
 - practice mode
+  -game history
+  -personal best tracking
 
 ## Challenge a Friend
 
