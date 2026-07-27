@@ -1,51 +1,30 @@
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
 # BlitzQuiz ⚡
 
-AI-powered 60-second quiz game on Celo blockchain.
+AI-powered onchain quiz game built on Celo and MiniPay.
+
+## Game Modes
+
+- ⏱️ Classic — 60 seconds
+- ⚡ Time Attack — 30 seconds, 1.5x multiplier
+- ❤️ Survival — 3 lives, one wrong = lose a life
+- 📚 Practice — No timer, see correct answers
 
 ## Features
 
 - 🧠 AI-generated questions via Groq (Llama 3.1)
 - 🎯 6 topic categories
-- 🔥 Live streak counter
-- ⏱️ 60-second countdown timer
-- ⛓️ Onchain score submission via MiniPay
-- 🏆 Global leaderboard on Celo mainnet
+- 🔥 Live streak counter with fire animations
+- 🏆 Global onchain leaderboard on Celo mainnet
+- 📅 Weekly local leaderboard
 - 🎊 Confetti celebrations
-- 🔊 Sound effects
-- 📊 Player stats modal
+- 🔊 Sound effects with mute toggle
+- 📊 Player stats modal with per-mode bests
+- 📜 Local game history (last 10 games)
+- 🌟 Personal best tracking
+- 🎯 Challenge a Friend with custom URLs
+- 📤 Share to X, Telegram, WhatsApp, Farcaster
 - 👋 Onboarding modal for new players
-- ⚡ Time Attack mode (30s, 1.5x multiplier)
-- ❤️ Survival mode (one wrong answer = game over)
-- 📚 Practice mode (no timer pressure)
-- ⏱️ Classic mode (60 seconds)
-- survival mode
-- practice mode
-  -game history
-  -personal best tracking
-  -weekly leaderboard
-
-## Challenge a Friend
-
-- Share a challenge link with your score
-- Friend opens link and sees your score to beat
-- Auto-selects your topic and game mode
+- 💜 PWA-ready
 
 ## Stack
 
@@ -61,4 +40,4 @@ https://blitz-quiz-pink.vercel.app/
 
 ## Built for
 
-Celo Proof of Ship Season
+Celo Proof of Ship Season 3
