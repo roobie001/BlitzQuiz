@@ -48,6 +48,12 @@ function getGameDuration(mode) {
   if (mode === "practice") return 999;
   return 60;
 }
+function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(now.setDate(diff)).setHours(0,0,0,0);
+}
 
 function shuffleArray(items) {
   const copy = [...items];
