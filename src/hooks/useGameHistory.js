@@ -6,6 +6,12 @@ const avgScore =
   history.length > 0
     ? Math.round(history.reduce((sum, h) => sum + h.score, 0) / history.length)
     : 0;
+const winRate =
+  history.length > 0
+    ? Math.round(
+        (history.filter((h) => h.score >= 50).length / history.length) * 100,
+      )
+    : 0;
 
 export function useGameHistory() {
   const [history, setHistory] = useState(() => {

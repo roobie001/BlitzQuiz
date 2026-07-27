@@ -855,10 +855,15 @@ export default function App() {
             <strong>{bestStreak >= 2 ? `🔥 ${bestStreak}x` : "—"}</strong>
           </div>
         </div>
-        <div className="stats-modal-item">
+         <div className="stats-modal-item">
   <span>Avg Score</span>
   <strong>{avgScore || "—"}</strong>
 </div>
+<div className="stats-modal-item">
+  <span>Win Rate</span>
+  <strong>{winRate}%</strong>
+</div>
+       
       </div>
 
       {/* ── Leaderboard ── */}
@@ -937,6 +942,7 @@ export default function App() {
           </div>
         </div>
       </div>
+      
 
       {/* ── Toast ── */}
       {showToast && <div className="toast">✅ Score copied to clipboard!</div>}
