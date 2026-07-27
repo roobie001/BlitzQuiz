@@ -19,6 +19,7 @@ import { GameModeSelector } from "./components/GameModeSelector";
 import { LivesDisplay } from "./components/LivesDisplay";
 import { ChallengeLink } from "./components/ChallengeLink";
 import { ChallengeBanner } from "./components/ChallengeBanner";
+import { useGameHistory } from "./hooks/useGameHistory";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -28,6 +29,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const challengeScore = Number(urlParams.get("challenge")) || null;
 const challengeMode = urlParams.get("mode") || "classic";
 const challengeTopic = urlParams.get("topic") || null;
+const { history, addGame, clearHistory } = useGameHistory();
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
