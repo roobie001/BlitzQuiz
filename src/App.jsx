@@ -45,6 +45,9 @@ const weeklyBest = weeklyLeaderboard.length > 0
   ? Math.max(...weeklyLeaderboard.map((h) => h.score))
   : 0;
 const weeklyGames = weeklyLeaderboard.length;
+const playedToday = history.some((h) =>
+  new Date(h.date).toDateString() === new Date().toDateString()
+);
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
@@ -753,6 +756,11 @@ export default function App() {
               
             </div>
           )}
+          {playedToday && (
+  <div style={{ fontSize: "0.82rem", color: "var(--green)", marginTop: 8 }}>
+    ✅ Played today!
+  </div>
+)}
         </>
       )}
 
