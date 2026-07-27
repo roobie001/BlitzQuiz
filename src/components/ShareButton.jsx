@@ -80,3 +80,18 @@ export function TelegramShareButton({ score }) {
     </button>
   );
 }
+
+export function WhatsAppShareButton({ score }) {
+  function handleWhatsAppShare() {
+    const text = encodeURIComponent(
+      `🎮 Just scored ${score} on BlitzQuiz!\n⛓️ Onchain on Celo\nhttps://blitz-quiz-pink.vercel.app/`,
+    );
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+  }
+
+  return (
+    <button className="whatsapp-share-btn" onClick={handleWhatsAppShare}>
+      💬 Share on WhatsApp
+    </button>
+  );
+}
