@@ -524,6 +524,11 @@ export default function App() {
               countFlash={countFlash}
             />
           )}
+          {gameMode === "practice" && (
+            <div className="mode-badge practice">
+              📚 Practice Mode — No Time Pressure
+            </div>
+          )}
 
           {/* Result Card */}
           {gameState === "finished" && (
