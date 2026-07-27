@@ -17,6 +17,7 @@ import { WelcomeModal } from "./components/WelcomeModal";
 import { StatsModal } from "./components/StatsModal";
 import { GameModeSelector } from "./components/GameModeSelector";
 import { LivesDisplay } from "./components/LivesDisplay";
+import { ChallengeLink } from "./components/ChallengeLink";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
