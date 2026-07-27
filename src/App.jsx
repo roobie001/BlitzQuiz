@@ -671,6 +671,9 @@ export default function App() {
                   if (flashAnswer?.index === i) {
                     cls += flashAnswer.correct ? " correct" : " wrong";
                   }
+                  if (showCorrect === option) {
+                    cls += " show-correct";
+                  }
                   return (
                     <button
                       key={option}

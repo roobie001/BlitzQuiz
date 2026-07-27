@@ -1427,3 +1427,8 @@ code {
   border: 1px solid rgba(0, 230, 118, 0.3);
   color: var(--green);
 }
+
+.answer-button.show-correct {
+  border-color: var(--green);
+  background: var(--green-dim);
+}
