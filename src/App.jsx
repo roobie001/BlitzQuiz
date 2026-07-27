@@ -286,6 +286,7 @@ export default function App() {
       return "finished";
     });
     setBoardOpen(true);
+    setLeaderboardTab("weekly");
   }
 
   useEffect(() => {
