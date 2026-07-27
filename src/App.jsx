@@ -960,6 +960,8 @@ export default function App() {
                 className={`leaderboard-row ${rankClass(i)}${entry.address.toLowerCase() === account?.toLowerCase() ? " current-user" : ""}`}
                 key={entry.address}
               >
+                <div className={`leaderboard-row${i === 0 ? " gold" : ""}`} key={i}>
+                
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span className={`rank ${rankClass(i)}`}>
                     {i === 0 ? "👑" : `#${i + 1}`}
