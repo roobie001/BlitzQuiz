@@ -41,7 +41,7 @@ const weeklyLeaderboard = history
 const displayLeaderboard = leaderboardTab === "weekly"
   ? weeklyLeaderboard.map((h) => ({ address: "You", bestScore: h.score, totalGames: 1 }))
   : leaderboard;
-  
+
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
   { id: "Science", emoji: "🔬" },
@@ -916,6 +916,13 @@ export default function App() {
               ))}
             </div>
           )}
+          {leaderboardTab === "weekly" && weeklyLeaderboard.length === 0 && (
+  <div className="leaderboard-empty">
+    <div className="leaderboard-empty-icon">📅</div>
+    <p>No games this week yet.</p>
+    <p>Play to appear on the weekly board!</p>
+  </div>
+)}
           {boardError && (
             <div className="leaderboard-error">
               <p className="error-text">{boardError}</p>
