@@ -544,6 +544,13 @@ export default function App() {
                   ? "⚡ Time Attack Score"
                   : "Final Score"}
               </div>
+              <div className="result-label">
+                {gameMode === "practice"
+                  ? "📚 Practice Complete"
+                  : gameMode === "timeattack"
+                    ? "⚡ Time Attack Score"
+                    : "Final Score"}
+              </div>
               <div className="result-score">{finalScore}</div>
               {gameMode !== "classic" && (
                 <div
