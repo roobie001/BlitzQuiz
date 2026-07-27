@@ -95,3 +95,18 @@ export function WhatsAppShareButton({ score }) {
     </button>
   );
 }
+
+export function FarcasterShareButton({ score }) {
+  function handleFarcasterShare() {
+    const text = encodeURIComponent(
+      `🎮 Just scored ${score} on BlitzQuiz!\n⛓️ Onchain on Celo /celo\nhttps://blitz-quiz-pink.vercel.app/`,
+    );
+    window.open(`https://warpcast.com/~/compose?text=${text}`, "_blank");
+  }
+
+  return (
+    <button className="farcaster-share-btn" onClick={handleFarcasterShare}>
+      🟣 Share on Farcaster
+    </button>
+  );
+}
