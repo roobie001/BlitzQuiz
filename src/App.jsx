@@ -66,6 +66,12 @@ function getWeekStart() {
   const diff = now.getDate() - day + (day === 0 ? -6 : 1);
   return new Date(now.setDate(diff)).setHours(0,0,0,0);
 }
+function getWeekRange() {
+  const start = new Date(getWeekStart());
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  return `${start.toLocaleDateString("en", { month: "short", day: "numeric" })} – ${end.toLocaleDateString("en", { month: "short", day: "numeric" })}`;
+}
 
 function shuffleArray(items) {
   const copy = [...items];
@@ -954,6 +960,11 @@ export default function App() {
               <p>Play and submit to claim #1!</p>
             </div>
           )}
+          {leaderboardTab === "weekly" && (
+  <p style={{ fontSize: "0.72rem", color: "var(--text-dim)", marginTop: 8 }}>
+    Week of {getWeekRange()}
+  </p>
+)}
           <div className="leaderboard-list">
             {leaderboard.map((entry, i) => (
               <div
