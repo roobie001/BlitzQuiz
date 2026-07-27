@@ -653,6 +653,12 @@ export default function App() {
                   mode={gameMode}
                   onCopied={showToastMessage}
                 />
+                <ChallengeLink
+                  score={finalScore}
+                  mode={gameMode}
+                  topic={selectedTopic}
+                  onCopied={showToastMessage}
+                />
               </div>
             </div>
           )}
