@@ -241,6 +241,13 @@ export default function App() {
       const livesBonus = gameMode === "survival" ? lives * 20 : 0;
       const score = finalPoints + remainingTime + livesBonus;
       setFinalScore(score);
+      addGame({
+        score: finalPoints + remainingTime,
+        mode: gameMode,
+        topic: selectedTopic || "Random",
+        correctAnswers: correctAnswersRef.current,
+        date: new Date().toISOString(),
+      });
       sounds.playEnd();
       return "finished";
     });
