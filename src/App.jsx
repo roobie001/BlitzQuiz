@@ -532,6 +532,11 @@ export default function App() {
               countFlash={countFlash}
             />
           )}
+          {gameMode === "practice" && (
+            <div className="practice-counter">
+              {answeredQuestions} / {gameQuestions.length} answered
+            </div>
+          )}
           {gameMode === "practice" ? (
             <p className="hint">Practice scores are not submitted onchain.</p>
           ) : (

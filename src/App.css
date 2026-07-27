@@ -1432,3 +1432,12 @@ code {
   border-color: var(--green);
   background: var(--green-dim);
 }
+
+.practice-counter {
+  text-align: center;
+  font-family: "Syne", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--green);
+  margin: 16px 0;
+}
