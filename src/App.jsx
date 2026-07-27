@@ -31,6 +31,8 @@ const challengeScore = Number(urlParams.get("challenge")) || null;
 const challengeMode = urlParams.get("mode") || "classic";
 const challengeTopic = urlParams.get("topic") || null;
 const { history, addGame, clearHistory } = useGameHistory();
+const isNewPersonalBest =
+  history.length > 0 && finalScore > Math.max(...history.map((h) => h.score));
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
@@ -597,6 +599,7 @@ export default function App() {
           )}
 
           {/* Result Card */}
+
           {gameState === "finished" && (
             <div className="card result-card" style={{ marginBottom: 16 }}>
               <div className="result-label">
@@ -660,6 +663,9 @@ export default function App() {
                 <div className="challenge-target">
                   Target: <strong>{challengeScore}</strong>
                 </div>
+              )}
+              {isNewPersonalBest && (
+                <div className="new-pb-badge">🌟 New Personal Best!</div>
               )}
               <div className="result-actions">
                 <button
