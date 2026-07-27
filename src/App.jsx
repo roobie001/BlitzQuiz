@@ -724,6 +724,7 @@ export default function App() {
                   onCopied={showToastMessage}
                 />
               </div>
+              
             </div>
           )}
         </>
@@ -854,6 +855,10 @@ export default function App() {
             <strong>{bestStreak >= 2 ? `🔥 ${bestStreak}x` : "—"}</strong>
           </div>
         </div>
+        <div className="stats-modal-item">
+  <span>Avg Score</span>
+  <strong>{avgScore || "—"}</strong>
+</div>
       </div>
 
       {/* ── Leaderboard ── */}
