@@ -261,6 +261,12 @@ export default function App() {
   }, [gameState]);
 
   useEffect(() => {
+    if (challengeScore && finalScore > challengeScore) {
+      fireConfetti();
+    }
+  }, [finalScore]);
+
+  useEffect(() => {
     if (gameState === "playing" && currentQuestionIndex >= gameQuestions.length)
       endGame();
   }, [currentQuestionIndex, gameQuestions.length, gameState]);
