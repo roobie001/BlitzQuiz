@@ -48,6 +48,9 @@ const weeklyGames = weeklyLeaderboard.length;
 const playedToday = history.some((h) =>
   new Date(h.date).toDateString() === new Date().toDateString()
 );
+const filteredWeekly = weeklyModeFilter === "all"
+  ? weeklyLeaderboard
+  : weeklyLeaderboard.filter((h) => h.mode === weeklyModeFilter);
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
@@ -209,6 +212,7 @@ export default function App() {
   const [gameMode, setGameMode] = useState("classic"); // classic | timeattack | survival | practice
   const [lives, setLives] = useState(1);
   const [leaderboardTab, setLeaderboardTab] = useState("all");
+  const [weeklyModeFilter, setWeeklyModeFilter] = useState("all");
 
   // hooks that depend on state — must be inside component
   const sounds = useSounds(soundEnabled);
