@@ -225,6 +225,12 @@ export default function App() {
       setGameMode(challengeMode);
     }
   }, []);
+  useEffect(() => {
+    if (isNewPersonalBest) {
+      setTimeout(() => fireConfetti(), 300);
+      setTimeout(() => fireConfetti(), 700);
+    }
+  }, [finalScore]);
 
   // Ends the game and calculates final score
   function endGame(
