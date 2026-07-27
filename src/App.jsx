@@ -746,26 +746,16 @@ export default function App() {
                     Set <code>VITE_CONTRACT_ADDRESS</code> to enable submission.
                   </p>
                 )}
-                <ShareButton
-                  score={finalScore}
-                  correctAnswers={correctAnswers}
-                  bestStreak={bestStreak}
-                  mode={gameMode}
-                  onCopied={showToastMessage}
-                />
-                <ChallengeLink
-                  score={finalScore}
-                  mode={gameMode}
-                  topic={selectedTopic}
-                  onCopied={showToastMessage}
-                />
-                <TwitterShareButton
-  score={finalScore}
-  mode={gameMode}
-  topic={selectedTopic}
-/>
-<TelegramShareButton score={finalScore} />
-<WhatsAppShareButton score={finalScore} />
+                <div className="share-section">
+  <div className="share-label">Share your score</div>
+  <div className="share-buttons">
+    <ShareButton score={finalScore} correctAnswers={correctAnswers} bestStreak={bestStreak} mode={gameMode} onCopied={showToastMessage} />
+    <TwitterShareButton score={finalScore} mode={gameMode} topic={selectedTopic} />
+    <TelegramShareButton score={finalScore} />
+    <WhatsAppShareButton score={finalScore} />
+    <ChallengeLink score={finalScore} mode={gameMode} topic={selectedTopic} onCopied={showToastMessage} />
+  </div>
+</div>
               </div>
               
             </div>

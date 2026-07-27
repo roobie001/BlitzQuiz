@@ -1744,3 +1744,19 @@ code {
   border-color: rgba(37, 211, 102, 0.5);
   transform: translateY(-1px);
 }
+
+.share-section {
+  margin-top: 8px;
+}
+.share-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.share-buttons {
+  display: grid;
+  gap: 8px;
+}
