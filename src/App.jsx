@@ -20,6 +20,7 @@ import { LivesDisplay } from "./components/LivesDisplay";
 import { ChallengeLink } from "./components/ChallengeLink";
 import { ChallengeBanner } from "./components/ChallengeBanner";
 import { useGameHistory } from "./hooks/useGameHistory";
+import { GameHistory } from "./components/GameHistory";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -716,6 +717,8 @@ export default function App() {
           )}
         </>
       )}
+
+      <GameHistory history={history} onClear={clearHistory} />
 
       {/* ── Game State: playing ── */}
       {gameState === "playing" && (
