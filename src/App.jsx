@@ -18,6 +18,7 @@ import { StatsModal } from "./components/StatsModal";
 import { GameModeSelector } from "./components/GameModeSelector";
 import { LivesDisplay } from "./components/LivesDisplay";
 import { ChallengeLink } from "./components/ChallengeLink";
+import { ChallengeBanner } from "./components/ChallengeBanner";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -512,6 +513,12 @@ export default function App() {
               </div>
             )}
           </div>
+
+          <ChallengeBanner
+            score={challengeScore}
+            mode={challengeMode}
+            topic={challengeTopic}
+          />
 
           {/* Start Button */}
           <button
