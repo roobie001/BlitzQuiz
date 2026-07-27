@@ -353,6 +353,7 @@ export default function App() {
     setShowCorrect(null);
     sounds.playStart();
   }
+  window.history.replaceState({}, "", window.location.pathname);
 
   // Handles player answer selection with flash feedback
   function handleAnswer(selectedAnswer, optionIndex) {
