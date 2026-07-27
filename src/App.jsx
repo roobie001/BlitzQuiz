@@ -756,6 +756,9 @@ export default function App() {
     <ChallengeLink score={finalScore} mode={gameMode} topic={selectedTopic} onCopied={showToastMessage} />
   </div>
 </div>
+<button className="ghost-button" onClick={() => showToastMessage()}>
+  🖼️ Copy Score Card
+</button>
               </div>
               
             </div>
