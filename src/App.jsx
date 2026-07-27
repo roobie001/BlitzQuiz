@@ -23,6 +23,7 @@ import { useGameHistory } from "./hooks/useGameHistory";
 import { GameHistory } from "./components/GameHistory";
 import { TwitterShareButton } from "./components/ShareButton";
 import { TelegramShareButton } from "./components/ShareButton";
+import { WhatsAppShareButton } from "./components/ShareButton";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
@@ -764,6 +765,7 @@ export default function App() {
   topic={selectedTopic}
 />
 <TelegramShareButton score={finalScore} />
+<WhatsAppShareButton score={finalScore} />
               </div>
               
             </div>
