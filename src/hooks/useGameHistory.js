@@ -25,5 +25,11 @@ export function useGameHistory() {
     setHistory([]);
   }
 
-  return { history, addGame, clearHistory };
+  function getBestByMode(mode) {
+    const modeGames = history.filter((h) => h.mode === mode);
+    if (modeGames.length === 0) return 0;
+    return Math.max(...modeGames.map((h) => h.score));
+  }
+
+  return { history, addGame, clearHistory, getBestByMode };
 }
