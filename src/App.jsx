@@ -329,6 +329,7 @@ export default function App() {
     setLifeLost(true);
     setTimeout(() => setLifeLost(false), 500);
     setLifeLost(false);
+    setShowCorrect(null);
     sounds.playStart();
   }
 
