@@ -9,7 +9,13 @@ import {
 import { useMiniPay } from "./useMiniPay";
 import { useQuestionGenerator } from "./hooks/useQuestionGenerator";
 import { StreakBadge } from "./components/StreakBadge";
-import { ShareButton } from "./components/ShareButton";
+import {
+  ShareButton,
+  TwitterShareButton,
+  TelegramShareButton,
+  WhatsAppShareButton,
+  FarcasterShareButton,
+} from "./components/ShareButton";
 import { useSounds } from "./hooks/useSounds";
 import { useConfetti } from "./hooks/useConfetti";
 import { DifficultyBadge } from "./components/DifficultyBadge";
@@ -21,40 +27,17 @@ import { ChallengeLink } from "./components/ChallengeLink";
 import { ChallengeBanner } from "./components/ChallengeBanner";
 import { useGameHistory } from "./hooks/useGameHistory";
 import { GameHistory } from "./components/GameHistory";
-import { TwitterShareButton } from "./components/ShareButton";
-import { TelegramShareButton } from "./components/ShareButton";
-import { WhatsAppShareButton } from "./components/ShareButton";
-import { FarcasterShareButton } from "./components/ShareButton";
 
 const GAME_DURATION = 60;
 const QUESTIONS_PER_GAME = 10;
 const ROUND_DISTRIBUTION = { easy: 4, medium: 4, hard: 2 };
 const POINTS_MAP = { easy: 10, medium: 15, hard: 20 };
+
+// Read challenge params from URL once at module level
 const urlParams = new URLSearchParams(window.location.search);
 const challengeScore = Number(urlParams.get("challenge")) || null;
 const challengeMode = urlParams.get("mode") || "classic";
 const challengeTopic = urlParams.get("topic") || null;
-const { history, addGame, clearHistory } = useGameHistory();
-const isNewPersonalBest =
-  history.length > 0 && finalScore > Math.max(...history.map((h) => h.score));
-const weekStart = getWeekStart();
-const weeklyLeaderboard = history
-  .filter((h) => new Date(h.date).getTime() >= weekStart)
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 10);
-const displayLeaderboard = leaderboardTab === "weekly"
-  ? weeklyLeaderboard.map((h) => ({ address: "You", bestScore: h.score, totalGames: 1 }))
-  : leaderboard;
-const weeklyBest = weeklyLeaderboard.length > 0
-  ? Math.max(...weeklyLeaderboard.map((h) => h.score))
-  : 0;
-const weeklyGames = weeklyLeaderboard.length;
-const playedToday = history.some((h) =>
-  new Date(h.date).toDateString() === new Date().toDateString()
-);
-const filteredWeekly = weeklyModeFilter === "all"
-  ? weeklyLeaderboard
-  : weeklyLeaderboard.filter((h) => h.mode === weeklyModeFilter);
 
 const TOPICS = [
   { id: "Crypto & Web3", emoji: "🔗" },
@@ -70,12 +53,14 @@ function getGameDuration(mode) {
   if (mode === "practice") return 999;
   return 60;
 }
+
 function getWeekStart() {
   const now = new Date();
   const day = now.getDay();
   const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(now.setDate(diff)).setHours(0,0,0,0);
+  return new Date(new Date().setDate(diff)).setHours(0, 0, 0, 0);
 }
+
 function getWeekRange() {
   const start = new Date(getWeekStart());
   const end = new Date(start);
@@ -180,6 +165,7 @@ export default function App() {
     useQuestionGenerator(selectedTopic);
 
   const [gameState, setGameState] = useState("idle");
+  const [gameMode, setGameMode] = useState("classic");
   const [gameQuestions, setGameQuestions] = useState(() =>
     buildRoundQuestions(staticQuestions),
   );
@@ -191,45 +177,47 @@ export default function App() {
   const [finalScore, setFinalScore] = useState(0);
   const [hasSubmittedRound, setHasSubmittedRound] = useState(false);
   const [flashAnswer, setFlashAnswer] = useState(null);
+  const [showCorrect, setShowCorrect] = useState(null);
+  const [lives, setLives] = useState(1);
+  const [lifeLost, setLifeLost] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [playerStats, setPlayerStats] = useState({
     bestScore: 0,
     totalGames: 0,
   });
-  const [showCorrect, setShowCorrect] = useState(null);
   const [loadingBoard, setLoadingBoard] = useState(false);
   const [boardError, setBoardError] = useState("");
   const [refreshTick, setRefreshTick] = useState(0);
   const [boardOpen, setBoardOpen] = useState(false);
+  const [leaderboardTab, setLeaderboardTab] = useState("all");
+  const [weeklyModeFilter, setWeeklyModeFilter] = useState("all");
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showToast, setShowToast] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(
     () => localStorage.getItem("blitzquiz-sound") !== "false",
   );
-  const [lifeLost, setLifeLost] = useState(false);
   const [countFlash, setCountFlash] = useState(false);
   const [showModal, setShowModal] = useState(
     () => localStorage.getItem("blitzquiz-seen") !== "true",
   );
   const [showStats, setShowStats] = useState(false);
-  const [gameMode, setGameMode] = useState("classic"); // classic | timeattack | survival | practice
-  const [lives, setLives] = useState(1);
-  const [leaderboardTab, setLeaderboardTab] = useState("all");
-  const [weeklyModeFilter, setWeeklyModeFilter] = useState("all");
 
-  // hooks that depend on state — must be inside component
+  // Hooks that depend on state — must be inside component
   const sounds = useSounds(soundEnabled);
   const { fireConfetti, fireStreakConfetti } = useConfetti();
+  const { history, addGame, clearHistory, getBestByMode, avgScore, winRate } =
+    useGameHistory();
 
   const correctAnswersRef = useRef(correctAnswers);
   const totalPointsRef = useRef(totalPoints);
   const timeLeftRef = useRef(timeLeft);
   const streakRef = useRef(streak);
+  const livesRef = useRef(lives);
 
   const currentQuestion = gameQuestions[currentQuestionIndex];
 
-  // isUrgent must be inside component to access state
+  // Derived state — inside component to access state
   const urgentThreshold = gameMode === "timeattack" ? 5 : 10;
   const isUrgent = timeLeft <= urgentThreshold && gameState === "playing";
 
@@ -246,25 +234,69 @@ export default function App() {
     [timeLeft, totalPoints],
   );
 
+  const isNewPersonalBest =
+    history.length > 0 &&
+    finalScore > 0 &&
+    finalScore > Math.max(...history.map((h) => h.score));
+
+  // Weekly leaderboard derived from local history
+  const weekStart = getWeekStart();
+  const weeklyLeaderboard = history
+    .filter((h) => new Date(h.date).getTime() >= weekStart)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  const filteredWeekly =
+    weeklyModeFilter === "all"
+      ? weeklyLeaderboard
+      : weeklyLeaderboard.filter((h) => h.mode === weeklyModeFilter);
+
+  const weeklyBest =
+    weeklyLeaderboard.length > 0
+      ? Math.max(...weeklyLeaderboard.map((h) => h.score))
+      : 0;
+
+  const weeklyGames = weeklyLeaderboard.length;
+
+  const playedToday = history.some(
+    (h) => new Date(h.date).toDateString() === new Date().toDateString(),
+  );
+
+  const displayLeaderboard =
+    leaderboardTab === "weekly"
+      ? filteredWeekly.map((h) => ({
+          address: account || "You",
+          bestScore: h.score,
+          totalGames: 1,
+        }))
+      : leaderboard;
+
   useEffect(() => {
     correctAnswersRef.current = correctAnswers;
     totalPointsRef.current = totalPoints;
     timeLeftRef.current = timeLeft;
     streakRef.current = streak;
-  }, [correctAnswers, timeLeft, totalPoints, streak]);
+    livesRef.current = lives;
+  }, [correctAnswers, timeLeft, totalPoints, streak, lives]);
 
+  // Auto-select topic and mode from challenge URL
   useEffect(() => {
-    if (challengeTopic) {
-      setSelectedTopic(challengeTopic);
-    }
-    if (challengeMode) {
-      setGameMode(challengeMode);
-    }
+    if (challengeTopic) setSelectedTopic(challengeTopic);
+    if (challengeMode) setGameMode(challengeMode);
   }, []);
+
+  // Fire confetti on new personal best
   useEffect(() => {
-    if (isNewPersonalBest) {
+    if (isNewPersonalBest && finalScore > 0) {
       setTimeout(() => fireConfetti(), 300);
       setTimeout(() => fireConfetti(), 700);
+    }
+  }, [finalScore]);
+
+  // Fire confetti when challenge is beaten
+  useEffect(() => {
+    if (challengeScore && finalScore > challengeScore) {
+      fireConfetti();
     }
   }, [finalScore]);
 
@@ -275,27 +307,31 @@ export default function App() {
   ) {
     setGameState((s) => {
       if (s !== "playing") return s;
-      const score = finalPoints + remainingTime;
+
+      const livesBonus = gameMode === "survival" ? livesRef.current * 20 : 0;
+      const score = finalPoints + remainingTime + livesBonus;
+
       setFinalScore(score);
+
+      addGame({
+        score,
+        mode: gameMode,
+        topic: selectedTopic || "Random",
+        correctAnswers: correctAnswersRef.current,
+        date: new Date().toISOString(),
+      });
+
       if (score >= 100) {
         setTimeout(() => fireConfetti(), 200);
         setTimeout(() => fireConfetti(), 600);
       } else if (score >= 50) {
         setTimeout(() => fireConfetti(), 300);
       }
-      const livesBonus = gameMode === "survival" ? lives * 20 : 0;
-      const score = finalPoints + remainingTime + livesBonus;
-      setFinalScore(score);
-      addGame({
-        score: finalPoints + remainingTime,
-        mode: gameMode,
-        topic: selectedTopic || "Random",
-        correctAnswers: correctAnswersRef.current,
-        date: new Date().toISOString(),
-      });
+
       sounds.playEnd();
       return "finished";
     });
+
     setBoardOpen(true);
     setLeaderboardTab("weekly");
   }
@@ -314,12 +350,6 @@ export default function App() {
     }, 1000);
     return () => window.clearInterval(timer);
   }, [gameState]);
-
-  useEffect(() => {
-    if (challengeScore && finalScore > challengeScore) {
-      fireConfetti();
-    }
-  }, [finalScore]);
 
   useEffect(() => {
     if (gameState === "playing" && currentQuestionIndex >= gameQuestions.length)
@@ -387,43 +417,45 @@ export default function App() {
     const pool =
       selectedTopic && aiQuestions.length > 0 ? aiQuestions : staticQuestions;
     const duration = getGameDuration(gameMode);
-    setTimeLeft(duration);
+
     setGameQuestions(buildRoundQuestions(pool));
     setCurrentQuestionIndex(0);
     setCorrectAnswers(0);
     setTotalPoints(0);
     setAnsweredQuestions(0);
-    setTimeLeft(GAME_DURATION);
+    setTimeLeft(duration);
     setFinalScore(0);
     setHasSubmittedRound(false);
     setFlashAnswer(null);
     setStreak(0);
     setBestStreak(0);
     setCountFlash(false);
-    setGameState("playing");
-    setLives(gameMode === "survival" ? 3 : 1);
-    setLifeLost(true);
-    setTimeout(() => setLifeLost(false), 500);
-    setLifeLost(false);
     setShowCorrect(null);
+    setLifeLost(false);
+    setLives(gameMode === "survival" ? 3 : 1);
+    setGameState("playing");
+
+    // Clear challenge params from URL after game starts
+    window.history.replaceState({}, "", window.location.pathname);
+
     sounds.playStart();
   }
-  window.history.replaceState({}, "", window.location.pathname);
 
   // Handles player answer selection with flash feedback
   function handleAnswer(selectedAnswer, optionIndex) {
     if (gameState !== "playing" || !currentQuestion) return;
+
     const isCorrect = selectedAnswer === currentQuestion.answer;
-    const nextPoints = totalPoints + (isCorrect ? questionPoints : 0);
-    const nextIndex = currentQuestionIndex + 1;
     const multiplier = gameMode === "timeattack" ? 1.5 : 1;
     const questionPoints = Math.round(
       (POINTS_MAP[currentQuestion.difficulty] ?? 10) * multiplier,
     );
+    const nextPoints = totalPoints + (isCorrect ? questionPoints : 0);
+    const nextIndex = currentQuestionIndex + 1;
 
     setFlashAnswer({ index: optionIndex, correct: isCorrect });
+
     if (gameMode === "practice" && !isCorrect) {
-      // show which was correct for 1 second
       setShowCorrect(currentQuestion.answer);
       setTimeout(() => setShowCorrect(null), 1000);
     }
@@ -446,18 +478,21 @@ export default function App() {
       } else {
         setStreak(0);
         sounds.playWrong();
+
         if (gameMode === "survival") {
-          const newLives = lives - 1;
+          const newLives = livesRef.current - 1;
           setLives(newLives);
+          setLifeLost(true);
+          setTimeout(() => setLifeLost(false), 500);
           if (newLives <= 0) {
-            endGame(timeLeft, nextPoints);
+            endGame(timeLeftRef.current, nextPoints);
             return;
           }
         }
       }
 
       if (nextIndex >= gameQuestions.length) {
-        endGame(timeLeft, nextPoints);
+        endGame(timeLeftRef.current, nextPoints);
         return;
       }
       setCurrentQuestionIndex(nextIndex);
@@ -504,6 +539,9 @@ export default function App() {
           stats={playerStats}
           bestStreak={bestStreak}
           getBestByMode={getBestByMode}
+          avgScore={avgScore}
+          winRate={winRate}
+          weeklyBest={weeklyBest}
           onClose={() => setShowStats(false)}
         />
       )}
@@ -519,11 +557,17 @@ export default function App() {
           >
             ?
           </button>
-          <button className="help-btn" onClick={() => setShowStats(true)} title="Your stats">
-  📊{history.length > 0 && <span className="header-badge">{history.length}</span>}
-</button>
+          <button
+            className="help-btn"
+            onClick={() => setShowStats(true)}
+            title="Your stats"
+            style={{ position: "relative" }}
+          >
             📊
-          </div>
+            {history.length > 0 && (
+              <span className="header-badge">{history.length}</span>
+            )}
+          </button>
           <button
             className="mute-btn"
             onClick={() =>
@@ -549,17 +593,19 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── Game State: idle or finished ── */}
+      {/* ── Idle / Finished State ── */}
       {gameState !== "playing" && (
         <>
           <GameModeSelector mode={gameMode} onSelect={setGameMode} />
+
+          <ChallengeBanner
+            score={challengeScore}
+            mode={challengeMode}
+            topic={challengeTopic}
+          />
+
           {/* Topic Selector */}
           <div className="card topic-section" style={{ marginBottom: 16 }}>
-            {gameMode === "survival" && (
-              <div className="mode-badge survival">
-                ❤️ Survival — {lives} {lives === 1 ? "life" : "lives"} left
-              </div>
-            )}
             <div className="topic-label">Choose a topic</div>
             <div className="topic-grid">
               {TOPICS.map((t) => (
@@ -584,12 +630,6 @@ export default function App() {
             )}
           </div>
 
-          <ChallengeBanner
-            score={challengeScore}
-            mode={challengeMode}
-            topic={challengeTopic}
-          />
-
           {/* Start Button */}
           <button
             className={`start-btn${isGeneratingQuestions ? " loading-state" : ""}`}
@@ -606,49 +646,10 @@ export default function App() {
               "Start Game"
             )}
           </button>
-          {gameMode !== "practice" && (
-            <TimerRing
-              timeLeft={timeLeft}
-              total={getGameDuration(gameMode)}
-              isUrgent={isUrgent}
-              countFlash={countFlash}
-            />
-          )}
-          {gameMode === "practice" && (
-            <div className="practice-counter">
-              {answeredQuestions} / {gameQuestions.length} answered
-            </div>
-          )}
-          {gameMode === "practice" ? (
-            <p className="hint">Practice scores are not submitted onchain.</p>
-          ) : (
-            <button
-              className="primary-button"
-              onClick={handleSubmitScore}
-              disabled={!canSubmitScore || txStatus === "pending"}
-            >
-              {txStatus === "pending"
-                ? "Submitting…"
-                : hasSubmittedRound
-                  ? "✓ Submitted"
-                  : "Submit Score Onchain"}
-            </button>
-          )}
-          {gameMode === "practice" && (
-            <div className="mode-badge practice">
-              📚 Practice Mode — No Time Pressure
-            </div>
-          )}
 
           {/* Result Card */}
-
           {gameState === "finished" && (
             <div className="card result-card" style={{ marginBottom: 16 }}>
-              <div className="result-label">
-                {gameMode === "timeattack"
-                  ? "⚡ Time Attack Score"
-                  : "Final Score"}
-              </div>
               <div className="result-label">
                 {gameMode === "practice"
                   ? "📚 Practice Complete"
@@ -657,6 +658,7 @@ export default function App() {
                     : "Final Score"}
               </div>
               <div className="result-score">{finalScore}</div>
+
               {gameMode !== "classic" && (
                 <div
                   className={`mode-badge ${gameMode}`}
@@ -666,15 +668,15 @@ export default function App() {
                     ? "⚡ Time Attack"
                     : gameMode === "survival"
                       ? "❤️ Survival"
-                      : gameMode === "practice"
-                        ? "📚 Practice"
-                        : ""}
+                      : "📚 Practice"}
                 </div>
               )}
+
               <div className="result-difficulty-breakdown">
                 <span>Easy 10pts · Medium 15pts · Hard 20pts</span>
               </div>
               <div className="result-sub">{correctAnswers} correct answers</div>
+
               {gameMode === "survival" && (
                 <div className="result-sub">
                   {lives > 0
@@ -691,6 +693,11 @@ export default function App() {
                   🔥 Best streak: <strong>{bestStreak}</strong>
                 </div>
               )}
+
+              {isNewPersonalBest && (
+                <div className="new-pb-badge">🌟 New Personal Best!</div>
+              )}
+
               {challengeScore && finalScore > challengeScore && (
                 <div className="challenge-won">
                   🏆 You beat the challenge! ({finalScore} vs {challengeScore})
@@ -701,26 +708,26 @@ export default function App() {
                   😅 So close! ({finalScore} vs {challengeScore} to beat)
                 </div>
               )}
-              {challengeScore && (
-                <div className="challenge-target">
-                  Target: <strong>{challengeScore}</strong>
-                </div>
-              )}
-              {isNewPersonalBest && (
-                <div className="new-pb-badge">🌟 New Personal Best!</div>
-              )}
+
               <div className="result-actions">
-                <button
-                  className="primary-button"
-                  onClick={handleSubmitScore}
-                  disabled={!canSubmitScore || txStatus === "pending"}
-                >
-                  {txStatus === "pending"
-                    ? "Submitting…"
-                    : hasSubmittedRound
-                      ? "✓ Submitted"
-                      : "Submit Score Onchain"}
-                </button>
+                {gameMode !== "practice" ? (
+                  <button
+                    className="primary-button"
+                    onClick={handleSubmitScore}
+                    disabled={!canSubmitScore || txStatus === "pending"}
+                  >
+                    {txStatus === "pending"
+                      ? "Submitting…"
+                      : hasSubmittedRound
+                        ? "✓ Submitted"
+                        : "Submit Score Onchain"}
+                  </button>
+                ) : (
+                  <p className="hint">
+                    Practice scores are not submitted onchain.
+                  </p>
+                )}
+
                 {!account && (
                   <button
                     className="secondary-button"
@@ -747,47 +754,86 @@ export default function App() {
                     Set <code>VITE_CONTRACT_ADDRESS</code> to enable submission.
                   </p>
                 )}
+
+                {/* Share Section */}
                 <div className="share-section">
-  <div className="share-label">Share your score</div>
-  <div className="share-buttons">
-    <ShareButton score={finalScore} correctAnswers={correctAnswers} bestStreak={bestStreak} mode={gameMode} onCopied={showToastMessage} />
-    <TwitterShareButton score={finalScore} mode={gameMode} topic={selectedTopic} />
-    <TelegramShareButton score={finalScore} />
-    <WhatsAppShareButton score={finalScore} />
-    <FarcasterShareButton score={finalScore} />
-    <ChallengeLink score={finalScore} mode={gameMode} topic={selectedTopic} onCopied={showToastMessage} />
-  </div>
-</div>
-<button className="ghost-button" onClick={() => showToastMessage()}>
-  🖼️ Copy Score Card
-</button>
+                  <div className="share-label">Share your score</div>
+                  <div className="share-buttons">
+                    <ShareButton
+                      score={finalScore}
+                      correctAnswers={correctAnswers}
+                      bestStreak={bestStreak}
+                      mode={gameMode}
+                      lives={lives}
+                      onCopied={showToastMessage}
+                    />
+                    <TwitterShareButton
+                      score={finalScore}
+                      mode={gameMode}
+                      topic={selectedTopic}
+                    />
+                    <TelegramShareButton score={finalScore} />
+                    <WhatsAppShareButton score={finalScore} />
+                    <FarcasterShareButton score={finalScore} />
+                    <ChallengeLink
+                      score={finalScore}
+                      mode={gameMode}
+                      topic={selectedTopic}
+                      onCopied={showToastMessage}
+                    />
+                  </div>
+                </div>
               </div>
-              
             </div>
           )}
+
           {playedToday && (
-  <div style={{ fontSize: "0.82rem", color: "var(--green)", marginTop: 8 }}>
-    ✅ Played today!
-  </div>
-)}
+            <div
+              style={{
+                fontSize: "0.82rem",
+                color: "var(--green)",
+                marginTop: 8,
+                textAlign: "center",
+              }}
+            >
+              ✅ Played today!
+            </div>
+          )}
         </>
       )}
 
-      <GameHistory history={history} onClear={clearHistory} />
-
-      {/* ── Game State: playing ── */}
+      {/* ── Playing State ── */}
       {gameState === "playing" && (
         <>
-          <TimerRing
-            timeLeft={timeLeft}
-            total={getGameDuration(gameMode)}
-            isUrgent={isUrgent}
-            countFlash={countFlash}
-          />
+          {gameMode !== "practice" ? (
+            <TimerRing
+              timeLeft={timeLeft}
+              total={getGameDuration(gameMode)}
+              isUrgent={isUrgent}
+              countFlash={countFlash}
+            />
+          ) : (
+            <div className="practice-counter">
+              {answeredQuestions} / {gameQuestions.length} answered
+            </div>
+          )}
+
           <LivesDisplay lives={lives} mode={gameMode} />
+
           {gameMode === "timeattack" && (
             <div className="mode-badge timeattack">⚡ Time Attack</div>
           )}
+          {gameMode === "survival" && (
+            <div className="mode-badge survival">
+              ❤️ Survival — {lives} {lives === 1 ? "life" : "lives"} left
+            </div>
+          )}
+          {gameMode === "practice" && (
+            <div className="mode-badge practice">
+              📚 Practice Mode — No Time Pressure
+            </div>
+          )}
+
           <div className="score-mini">
             Base <strong>{totalPoints}</strong> &nbsp;·&nbsp; Potential{" "}
             <strong>{liveScore}</strong>
@@ -839,6 +885,9 @@ export default function App() {
 
       <div className="section-divider" />
 
+      {/* ── Game History ── */}
+      <GameHistory history={history} onClear={clearHistory} />
+
       {/* ── Wallet Card ── */}
       <div className="card wallet-card" style={{ marginBottom: 16 }}>
         <div className="wallet-card-title">Wallet & Chain</div>
@@ -881,7 +930,7 @@ export default function App() {
         )}
       </div>
 
-      {/* ── Stats ── */}
+      {/* ── Stats Card ── */}
       <div className="card stats-card" style={{ marginBottom: 16 }}>
         <div className="stats-card-title">Your Stats</div>
         <div className="stats-grid">
@@ -893,24 +942,23 @@ export default function App() {
             <span>Total Games</span>
             <strong>{playerStats.totalGames}</strong>
           </div>
-          <div style={{ gridColumn: "span 2" }}>
-            <span>Best Streak This Session</span>
+          <div>
+            <span>Avg Score</span>
+            <strong>{avgScore || "—"}</strong>
+          </div>
+          <div>
+            <span>Win Rate</span>
+            <strong>{winRate ? `${winRate}%` : "—"}</strong>
+          </div>
+          <div>
+            <span>This Week</span>
+            <strong>{weeklyBest || "—"}</strong>
+          </div>
+          <div>
+            <span>Best Streak</span>
             <strong>{bestStreak >= 2 ? `🔥 ${bestStreak}x` : "—"}</strong>
           </div>
         </div>
-         <div className="stats-modal-item">
-  <span>Avg Score</span>
-  <strong>{avgScore || "—"}</strong>
-</div>
-<div className="stats-modal-item">
-  <span>Win Rate</span>
-  <strong>{winRate}%</strong>
-</div>
-<div className="stats-modal-item">
-  <span>This Week</span>
-  <strong>{weeklyBest || "—"}</strong>
-</div>
-       
       </div>
 
       {/* ── Leaderboard ── */}
@@ -940,7 +988,48 @@ export default function App() {
             </span>
           </div>
         </div>
+
         <div className={`leaderboard-body ${boardOpen ? "open" : ""}`}>
+          {/* Tabs */}
+          <div className="leaderboard-tabs">
+            <button
+              className={`lb-tab${leaderboardTab === "all" ? " active" : ""}`}
+              onClick={() => setLeaderboardTab("all")}
+            >
+              All Time
+            </button>
+            <button
+              className={`lb-tab${leaderboardTab === "weekly" ? " active" : ""}`}
+              onClick={() => setLeaderboardTab("weekly")}
+            >
+              This Week
+            </button>
+          </div>
+
+          {leaderboardTab === "weekly" && (
+            <p
+              style={{
+                fontSize: "0.72rem",
+                color: "var(--text-dim)",
+                marginTop: 4,
+              }}
+            >
+              Week of {getWeekRange()}
+            </p>
+          )}
+
+          {leaderboardTab === "weekly" && weeklyGames > 0 && (
+            <p
+              style={{
+                fontSize: "0.78rem",
+                color: "var(--text-dim)",
+                marginTop: 4,
+              }}
+            >
+              {weeklyGames} games played this week
+            </p>
+          )}
+
           {loadingBoard && (
             <div className="leaderboard-skeleton">
               {[1, 2, 3].map((i) => (
@@ -948,18 +1037,7 @@ export default function App() {
               ))}
             </div>
           )}
-          {leaderboardTab === "weekly" && weeklyLeaderboard.length === 0 && (
-  <div className="leaderboard-empty">
-    <div className="leaderboard-empty-icon">📅</div>
-    <p>No games this week yet.</p>
-    <p>Play to appear on the weekly board!</p>
-  </div>
-)}
-{leaderboardTab === "weekly" && weeklyGames > 0 && (
-  <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginTop: 8 }}>
-    {weeklyGames} games played this week
-  </p>
-)}
+
           {boardError && (
             <div className="leaderboard-error">
               <p className="error-text">{boardError}</p>
@@ -971,26 +1049,36 @@ export default function App() {
               </button>
             </div>
           )}
-          {!loadingBoard && !boardError && leaderboard.length === 0 && (
+
+          {leaderboardTab === "all" &&
+            !loadingBoard &&
+            !boardError &&
+            leaderboard.length === 0 && (
+              <div className="leaderboard-empty">
+                <div className="leaderboard-empty-icon">🏆</div>
+                <p>No scores yet.</p>
+                <p>Play and submit to claim #1!</p>
+              </div>
+            )}
+
+          {leaderboardTab === "weekly" && weeklyLeaderboard.length === 0 && (
             <div className="leaderboard-empty">
-              <div className="leaderboard-empty-icon">🏆</div>
-              <p>No scores yet.</p>
-              <p>Play and submit to claim #1!</p>
+              <div className="leaderboard-empty-icon">📅</div>
+              <p>No games this week yet.</p>
+              <p>Play to appear on the weekly board!</p>
             </div>
           )}
-          {leaderboardTab === "weekly" && (
-  <p style={{ fontSize: "0.72rem", color: "var(--text-dim)", marginTop: 8 }}>
-    Week of {getWeekRange()}
-  </p>
-)}
+
           <div className="leaderboard-list">
-            {leaderboard.map((entry, i) => (
+            {displayLeaderboard.map((entry, i) => (
               <div
-                className={`leaderboard-row ${rankClass(i)}${entry.address.toLowerCase() === account?.toLowerCase() ? " current-user" : ""}`}
-                key={entry.address}
+                className={`leaderboard-row ${rankClass(i)}${
+                  entry.address?.toLowerCase() === account?.toLowerCase()
+                    ? " current-user"
+                    : ""
+                }`}
+                key={`${entry.address}-${i}`}
               >
-                <div className={`leaderboard-row${i === 0 ? " gold" : ""}`} key={i}>
-                
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span className={`rank ${rankClass(i)}`}>
                     {i === 0 ? "👑" : `#${i + 1}`}
@@ -1007,18 +1095,7 @@ export default function App() {
             ))}
           </div>
         </div>
-        <div className="leaderboard-tabs">
-  <button
-    className={`lb-tab${leaderboardTab === "all" ? " active" : ""}`}
-    onClick={() => setLeaderboardTab("all")}
-  >All Time</button>
-  <button
-    className={`lb-tab${leaderboardTab === "weekly" ? " active" : ""}`}
-    onClick={() => setLeaderboardTab("weekly")}
-  >This Week</button>
-</div>
       </div>
-      
 
       {/* ── Toast ── */}
       {showToast && <div className="toast">✅ Score copied to clipboard!</div>}

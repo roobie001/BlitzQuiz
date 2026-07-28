@@ -2,16 +2,6 @@ import { useState } from "react";
 
 const HISTORY_KEY = "blitzquiz-history";
 const MAX_HISTORY = 10;
-const avgScore =
-  history.length > 0
-    ? Math.round(history.reduce((sum, h) => sum + h.score, 0) / history.length)
-    : 0;
-const winRate =
-  history.length > 0
-    ? Math.round(
-        (history.filter((h) => h.score >= 50).length / history.length) * 100,
-      )
-    : 0;
 
 export function useGameHistory() {
   const [history, setHistory] = useState(() => {
@@ -41,5 +31,20 @@ export function useGameHistory() {
     return Math.max(...modeGames.map((h) => h.score));
   }
 
-  return { history, addGame, clearHistory, getBestByMode, avgScore };
+  // Computed values derived from history
+  const avgScore =
+    history.length > 0
+      ? Math.round(
+          history.reduce((sum, h) => sum + h.score, 0) / history.length,
+        )
+      : 0;
+
+  const winRate =
+    history.length > 0
+      ? Math.round(
+          (history.filter((h) => h.score >= 50).length / history.length) * 100,
+        )
+      : 0;
+
+  return { history, addGame, clearHistory, getBestByMode, avgScore, winRate };
 }

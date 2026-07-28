@@ -1,8 +1,6 @@
 import { useState } from "react";
 
 function generateShareText(score, correctAnswers, bestStreak, mode, lives) {
-  const livesInfo =
-    mode === "survival" ? `\n❤️ Survived with ${lives} lives` : "";
   const modeLabel =
     mode === "timeattack"
       ? "⚡ Time Attack"
@@ -11,18 +9,33 @@ function generateShareText(score, correctAnswers, bestStreak, mode, lives) {
         : mode === "practice"
           ? "📚 Practice"
           : "🕐 Classic";
+  const livesInfo =
+    mode === "survival" && lives > 0 ? `\n❤️ Survived with ${lives} lives` : "";
   return `🎮 BlitzQuiz ${modeLabel} Score: ${score}
 ✅ ${correctAnswers} correct answers
-🔥 Best streak: ${bestStreak}x
+🔥 Best streak: ${bestStreak}x${livesInfo}
 ⛓️ Posted onchain on Celo!
 Play here → https://blitz-quiz-pink.vercel.app/`;
 }
 
-export function ShareButton({ score, correctAnswers, bestStreak, onCopied }) {
+export function ShareButton({
+  score,
+  correctAnswers,
+  bestStreak,
+  mode,
+  lives,
+  onCopied,
+}) {
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
-    const text = generateShareText(score, correctAnswers, bestStreak);
+    const text = generateShareText(
+      score,
+      correctAnswers,
+      bestStreak,
+      mode,
+      lives,
+    );
     if (navigator.share) {
       try {
         await navigator.share({ title: "BlitzQuiz", text });
